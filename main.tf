@@ -31,9 +31,30 @@ data "aws_caller_identity" "current" {}
 
 
 /*########################################################
-AWS Terraform Locals
+User Input Lambda Module
 
 ########################################################*/
-locals {
-  project_name = replace(var.project_name, " ", "-")
+
+data "archive_file" "lambda_function-user_input" {
+  // Zip file of the lambda function
+  type        = "zip"
+  source_dir  = "${path.module}/lambda_function-user_input"
+  output_path = "${path.module}/lambda_function-user_input.zip"
+}
+
+module "user_input_lambda" {
+  // Lambda Function for User Input
+  // Abstracted into module
+  source = "./modules/user-input-lambda"
+
+  aws-region           = var.aws-region
+  resource-prefix      = var.project_name
+  source_code_zip_path = data.archive_file.lambda_function-user_input.output_path
+
+  lambda = {
+    handler       = "main.handler"
+    runtime       = "python3.12"
+    architectures = "arm64"
+    # execution_role = ""
+  }
 }
