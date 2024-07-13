@@ -45,16 +45,27 @@ data "archive_file" "lambda_function-user_input" {
 module "user_input_lambda" {
   // Lambda Function for User Input
   // Abstracted into module
-  source = "./modules/user-input-lambda"
+  source = "./modules/lambda"
 
-  aws-region           = var.aws-region
-  resource-prefix      = var.project_name
+  aws-region      = var.aws-region
+  resource-prefix = var.project_name
+  name            = "user-input-lambda"
+  description     = "Lambda Function Used to server user input"
+
   source_code_zip_path = data.archive_file.lambda_function-user_input.output_path
 
-  lambda = {
-    handler       = "main.handler"
-    runtime       = "python3.12"
-    architectures = "arm64"
+  lambda-config = {
+    handler        = "main.handler"
+    runtime        = "python3.12"
+    architecture   = "arm64"
     execution_role = var.lambda_function-user_input-execution_role
+  }
+
+  additional-permissions = {
+    permit_s3 = {
+      Effect   = "Allow"
+      Action   = "s3:GetObject"
+      Resource = "*"
+    }
   }
 }
