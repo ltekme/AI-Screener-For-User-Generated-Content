@@ -9,3 +9,9 @@ variable "aws-region" {
   type        = string
   default     = "us-east-1"
 }
+
+variable "lambda_function-user_input-execution_role" {
+  description = "The ARN of the IAM role that the lambda function will assume"
+  type        = string
+  default     = null
+}

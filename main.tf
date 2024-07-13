@@ -55,6 +55,6 @@ module "user_input_lambda" {
     handler       = "main.handler"
     runtime       = "python3.12"
     architectures = "arm64"
-    # execution_role = ""
+    execution_role = var.lambda_function-user_input-execution_role
   }
 }
