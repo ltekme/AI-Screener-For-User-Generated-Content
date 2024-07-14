@@ -2,17 +2,18 @@
 
 This is just a lambda function rapped in a terraform module for a cleaner root module
 
-## Arguments
+## Inputs
 
-| arg                    | default | description                                                       |
-| ---------------------- | ------- | ----------------------------------------------------------------- |
-| aws-region             |         | AWS Rrgion code to deploy the resources in                        |
-| prefix                 |         | Prefix to be added to all resources                               |
-| source_code_zip_path   |         | Path to the source code zip of the lambda function                |
-| name                   |         | Name of the lambda function                                       |
-| description            | ""      | Description of the lambda function                                |
-| lambda-config          | {}      | Map of lambda function configurations                             |
-| additional-permissions | {}      | List of additional permissions to be added to the lambda function |
+| arg                         | default | description                                                       | type             |
+| --------------------------- | ------- | ----------------------------------------------------------------- | ---------------- | --- |
+| aws-region                  |         | AWS Rrgion code to deploy the resources in                        | string           | s   |
+| prefix                      |         | Prefix to be added to all resources                               | string           |
+| source_code_zip_path        |         | Path to the source code zip of the lambda function                | string           |
+| name                        |         | Name of the lambda function                                       | string           |
+| description                 | ""      | Description of the lambda function                                | string           |
+| lambda-config               | {}      | Map of lambda function configurations                             | map(string)      |
+| additional-permissions      | {}      | List of additional permissions to be added to the lambda function | map(map(string)) |
+| create-cloudwatch-log-group | true    | Create CloudWatch Logs for the lambda function                    | bool             |
 
 ### lambda-config
 
@@ -55,6 +56,14 @@ module "user_input_lambda" {
   }
 }
 ```
+
+## Outputs
+
+| name            | description                                     |
+| --------------- | ----------------------------------------------- |
+| lambda_function | The lambda function object                      |
+| lambda_role     | The role object created for the lambda function |
+| cloudwatch      | The cloudwatch log group object created         |
 
 ## Example
 

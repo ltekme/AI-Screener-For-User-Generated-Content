@@ -5,16 +5,16 @@ locals
 locals {
   prefix = lower(replace(replace(var.prefix, " ", "-"), "_", "-"))
 
-
   lambda-function-name = "${local.prefix}-${var.name}"
 
   lambda-handler      = lookup(var.lambda-config, "handler", "lambda_function.lambda_handler")
   lambda-runtime      = lookup(var.lambda-config, "runtime", "python3.12")
   lambda-architecture = lookup(var.lambda-config, "architecture", "arm64")
 
-  lambda-create_role         = lookup(var.lambda-config, "execution_role", null) != null ? false : true
-  lambda-additional-policies = local.lambda-create_role == true ? var.additional-permissions : {}
-  lambda-execution-role-arn  = local.lambda-create_role == false ? var.lambda-config.execution_role : aws_iam_role.lambda_function-user_input[0].arn
+  lambda-create_role        = lookup(var.lambda-config, "execution_role", null) != null ? false : true
+  lambda-execution-role-arn = local.lambda-create_role == false ? var.lambda-config.execution_role : aws_iam_role.this[0].arn
+
+  cloudwatch-log-group-name = "/aws/lambda/${local.lambda-function-name}"
 }
 
 data "aws_caller_identity" "current" {}
@@ -24,10 +24,9 @@ data "aws_caller_identity" "current" {}
 Lambda Function Base Permissions
 
 ########################################################*/
-resource "aws_iam_role" "lambda_function-user_input" {
-  // Role For User Input Lambda Function
+resource "aws_iam_role" "this" {
   count = local.lambda-create_role == true ? 1 : 0
-  name  = lower("${loacl.lambda-function-name}-role")
+  name  = lower("${local.lambda-function-name}-role")
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -40,7 +39,7 @@ resource "aws_iam_role" "lambda_function-user_input" {
       }
     ]
   })
-  // Permit CloudWatch Logs
+
   inline_policy {
     name = "cloudwatch-logs"
     policy = jsonencode({
@@ -49,7 +48,7 @@ resource "aws_iam_role" "lambda_function-user_input" {
         {
           Effect   = "Allow",
           Action   = ["logs:CreateLogStream", "logs:PutLogEvents"],
-          Resource = "arn:aws:logs:${var.aws-region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.lambda-function-name}:*"
+          Resource = "arn:aws:logs:${var.aws-region}:${data.aws_caller_identity.current.account_id}:log-group:${local.cloudwatch-log-group-name}:*"
         }
       ]
     })
@@ -58,28 +57,10 @@ resource "aws_iam_role" "lambda_function-user_input" {
 
 
 /*########################################################
-Lambda Function Additional Permissions
-
-########################################################*/
-resource "aws_iam_policy" "additional" {
-  for_each = local.lambda-additional-policies
-  name     = "${local.prefix}-${each.key}"
-  policy   = jsonencode(each.value)
-}
-
-resource "aws_iam_policy_attachment" "name" {
-  for_each   = aws_iam_policy.additional
-  name       = "${local.prefix}-${each.key}"
-  policy_arn = each.value.arn
-  roles      = [aws_iam_role.lambda_function-user_input[0].name]
-}
-
-
-/*########################################################
 Lambda Function
 
 ########################################################*/
-resource "aws_lambda_function" "user_input" {
+resource "aws_lambda_function" "this" {
   // User Input Lambda Function
   function_name = local.lambda-function-name
   description   = var.description
@@ -92,4 +73,15 @@ resource "aws_lambda_function" "user_input" {
   architectures = [local.lambda-architecture]
 
   role = local.lambda-execution-role-arn
+}
+
+
+/*########################################################
+Lambda Function CloudWatch Logs
+
+########################################################*/
+resource "aws_cloudwatch_log_group" "this" {
+  count             = var.create-cloudwatch-log-group == true ? 1 : 0
+  name              = local.cloudwatch-log-group-name
+  retention_in_days = 7
 }

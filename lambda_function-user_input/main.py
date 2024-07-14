@@ -2,6 +2,14 @@
 
 import json
 
+response = {
+    "statusCode": 200,
+    "headers": {
+        "content-type": "application/json"
+    },
+    "body": json.dumps({"Message": "Hello from Lambda!"})
+}
+
 
 def lambda_handler(event, context):
     """Take In User Input, Send to SQS, Retrun Success Message"""
@@ -9,7 +17,4 @@ def lambda_handler(event, context):
     # Parse the user content and send to sqs: implement
     print(event)
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
-    }
+    return response

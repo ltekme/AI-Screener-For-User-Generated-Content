@@ -44,3 +44,9 @@ variable "additional-permissions" {
   type        = map(map(string))
   default     = {}
 }
+
+variable "create-cloudwatch-log-group" {
+  description = "Create CloudWatch Logs for the lambda function"
+  type        = bool
+  default     = true
+}
