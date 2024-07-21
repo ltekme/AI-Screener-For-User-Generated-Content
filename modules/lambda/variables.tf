@@ -41,8 +41,11 @@ variable "lambda-config" {
 
 variable "additional-permissions" {
   description = "List of additional permissions to be added to the lambda function"
-  type        = map(map(string))
-  default     = {}
+  type = list(object({
+    name   = string
+    policy = map(any)
+  }))
+  default = []
 }
 
 variable "create-cloudwatch-log-group" {

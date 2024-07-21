@@ -1,4 +1,3 @@
-
 /*########################################################
 User Input Lambda Module
 
@@ -27,6 +26,26 @@ module "user_input_lambda" {
     architecture   = "arm64"
     execution_role = var.lambda_function-user_input-execution_role
   }
+
+  additional-permissions = [
+    {
+      name = "sqs-permission"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow",
+            Action = [
+              "sqs:ReceiveMessage",
+              "sqs:DeleteMessage",
+              "sqs:GetQueueAttributes",
+            ],
+            Resource = ["${aws_sqs_queue.user_submit.arn}"]
+          }
+        ]
+      }
+    }
+  ]
 }
 
 resource "aws_lambda_permission" "submit_post" {

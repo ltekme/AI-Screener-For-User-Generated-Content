@@ -11,8 +11,9 @@ locals {
   lambda-runtime      = lookup(var.lambda-config, "runtime", "python3.12")
   lambda-architecture = lookup(var.lambda-config, "architecture", "arm64")
 
-  lambda-create_role        = lookup(var.lambda-config, "execution_role", null) != null ? false : true
-  lambda-execution-role-arn = local.lambda-create_role == false ? var.lambda-config.execution_role : aws_iam_role.this[0].arn
+  lambda-create_role        = lookup(var.lambda-config, "execution_role", null) == null ? true : false
+  lambda-execution-role-arn = local.lambda-create_role == true ? aws_iam_role.this[0].arn : var.lambda-config.execution_role
+
 
   cloudwatch-log-group-name = "/aws/lambda/${local.lambda-function-name}"
 }
@@ -52,6 +53,14 @@ resource "aws_iam_role" "this" {
         }
       ]
     })
+  }
+
+  dynamic "inline_policy" {
+    for_each = var.additional-permissions
+    content {
+      name   = inline_policy.value.name
+      policy = jsonencode(inline_policy.value.policy)
+    }
   }
 }
 
