@@ -8,3 +8,8 @@ resource "aws_sqs_queue" "user_submit" {
   // Max time lambda can run is 15 minutes
   visibility_timeout_seconds = 900
 }
+
+resource "aws_lambda_event_source_mapping" "user_submit" {
+  event_source_arn = aws_sqs_queue.user_submit.arn
+  function_name    = module.user_input_lambda.lambda_function.arn
+}

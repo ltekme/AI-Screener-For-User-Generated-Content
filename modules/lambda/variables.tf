@@ -43,7 +43,7 @@ variable "additional-permissions" {
   description = "List of additional permissions to be added to the lambda function"
   type = list(object({
     name   = string
-    policy = map(any)
+    policy = any
   }))
   default = []
 }

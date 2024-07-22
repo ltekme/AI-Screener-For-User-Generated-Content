@@ -50,13 +50,13 @@ API Gateway Log
 
 ########################################################*/
 resource "aws_cloudwatch_log_group" "main-api_gateway" {
-  count = var.api_gateway-enable-logs == true ? 1 : 0
+  count             = var.api_gateway-enable-logs == true ? 1 : 0
   name              = "/aws/apigateway/${aws_apigatewayv2_api.main.id}"
   retention_in_days = 7
 }
 
 resource "aws_api_gateway_account" "main-api_gateway" {
-  count = var.api_gateway-enable-logs == true ? 1 : 0
+  count               = var.api_gateway-enable-logs == true ? 1 : 0
   cloudwatch_role_arn = var.api_gateway-account-role == null ? aws_iam_role.main-api_gateway[0].arn : var.api_gateway-account-role
 }
 
@@ -118,4 +118,12 @@ resource "aws_apigatewayv2_integration" "submit_post" {
   integration_type     = "AWS_PROXY"
   integration_method   = "POST"
   integration_uri      = module.user_input_lambda.lambda_function.invoke_arn
+}
+
+resource "aws_lambda_permission" "submit_post" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = module.user_input_lambda.lambda_function.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/submit_post"
 }

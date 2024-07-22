@@ -47,11 +47,3 @@ module "user_input_lambda" {
     }
   ]
 }
-
-resource "aws_lambda_permission" "submit_post" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = module.user_input_lambda.lambda_function.arn
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "arn:aws:execute-api:${var.aws-region}:${data.aws_caller_identity.current.account_id}:*/*/*"
-}
