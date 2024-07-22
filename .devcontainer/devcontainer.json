@@ -1,5 +1,9 @@
 {
-  "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
+  // "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
+  "build":{
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
   "postCreateCommand": "echo 'alias tf=terraform' > /home/vscode/.bash_aliases",
   "customizations": {
     "vscode": {

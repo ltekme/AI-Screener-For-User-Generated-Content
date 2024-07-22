@@ -4,16 +4,6 @@ import json
 import os
 import boto3
 
-SQS_QUEUE_URL = os.environ.get('SQS_QUEUE_URL')
-
-response = {
-    "statusCode": 200,
-    "headers": {
-        "content-type": "application/json"
-    },
-    "body": json.dumps({"Message": "Sucess"})
-}
-
 
 class ValidationError(Exception):
     pass
@@ -25,23 +15,30 @@ def validate_request(post_content: dict) -> None:
         raise ValidationError("Title is required")
     if 'body' not in post_content:
         raise ValidationError("Body is required")
-    if len('body') > 500:
+    if len(post_content['body']) > 500:
         raise ValidationError("Body must be less than 500 characters long")
-    return
 
 
-def send_to_sqs(post_content: dict) -> None:
+def send_to_sqs(sqs_queue_url: str, post_content: dict) -> None:
     """Send User Request to SQS"""
     client = boto3.client('sqs')
     client.send_message(
-        QueueUrl=SQS_QUEUE_URL,
+        QueueUrl=sqs_queue_url,
         MessageBody=json.dumps(post_content)
     )
-    return
 
 
 def lambda_handler(event, context):
     """Validate User Request and Send to SQS"""
+
+    SQS_QUEUE_URL: str = os.environ.get('SQS_QUEUE_URL')
+    response: dict = {
+        "statusCode": 200,
+        "headers": {
+            "content-type": "application/json"
+        },
+        "body": json.dumps({"Message": "Success"})
+    }
 
     # Check Paramaters
     if SQS_QUEUE_URL is None or SQS_QUEUE_URL == "":
@@ -62,12 +59,12 @@ def lambda_handler(event, context):
 
     # Send to SQS
     try:
-        send_to_sqs(post_content)
+        send_to_sqs(SQS_QUEUE_URL, post_content)
     except Exception as e:
         print(f"SQS_FUNCTION_ERROR: {e}")
         response["statusCode"] = 500
         response["body"] = json.dumps(
-            {"Error": "Something Went Wrong, Check Logs"})
+            {"Error": "Something Went Wrong"})
         return response
 
     return response

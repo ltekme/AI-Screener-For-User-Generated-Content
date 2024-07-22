@@ -7,3 +7,5 @@
 **/*.zip
 
 **/*.tfvars
+
+**/__pycache__
