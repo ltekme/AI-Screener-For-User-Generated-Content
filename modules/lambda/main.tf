@@ -82,6 +82,10 @@ resource "aws_lambda_function" "this" {
   architectures = [local.lambda-architecture]
 
   role = local.lambda-execution-role-arn
+  
+  environment {
+    variables = var.additional-environment-variables
+  }
 }
 
 

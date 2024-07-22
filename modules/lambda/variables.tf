@@ -53,3 +53,9 @@ variable "create-cloudwatch-log-group" {
   type        = bool
   default     = true
 }
+
+variable "additional-environment-variables" {
+  description = "Additional environment variables to be added to the lambda function"
+  type        = map(string)
+  default     = {} 
+}

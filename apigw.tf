@@ -45,7 +45,7 @@ resource "aws_apigatewayv2_deployment" "main" {
   }
 
   depends_on = [
-    aws_apigatewayv2_route.submit_post_post
+    aws_apigatewayv2_route.submit_post
   ]
 }
 
@@ -118,45 +118,17 @@ resource "aws_apigatewayv2_route" "submit_post" {
 }
 
 resource "aws_apigatewayv2_integration" "submit_post" {
-  api_id              = aws_apigatewayv2_api.main.id
-  credentials_arn     = var.api_gateway-route-submit-integration-role-arn == null ? aws_iam_role.main-api_gateway-integration-submit_post[0].arn : var.api_gateway-route-submit-integration-role-arn
-  description         = "SQS queue integration"
-  integration_type    = "AWS_PROXY"
-  integration_subtype = "SQS-SendMessage"
-  request_parameters = {
-    "QueueUrl"    = "${aws_sqs_queue.user_submit_post.url}"
-    "MessageBody" = "$request.body"
-  }
+  api_id               = aws_apigatewayv2_api.main.id
+  passthrough_behavior = "WHEN_NO_MATCH"
+  integration_type     = "AWS_PROXY"
+  integration_method   = "POST"
+  integration_uri      = module.user_input_lambda.lambda_function.invoke_arn
 }
 
-resource "aws_iam_role" "main-api_gateway-integration-submit_post" {
-  count = var.api_gateway-route-submit-integration-role-arn == null ? 1 : 0
-  name  = "${replace(var.project-name, " ", "_")}-API-Gateway-submit_post-integration"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          Service = "apigateway.amazonaws.com"
-        },
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-
-  inline_policy {
-    name = "sqs-send-message"
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Effect   = "Allow",
-          Action   = "sqs:SendMessage",
-          Resource = ["${aws_sqs_queue.user_submit_post.arn}"]
-        }
-      ]
-    })
-  }
+resource "aws_lambda_permission" "submit_post" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = module.user_input_lambda.lambda_function.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
 }

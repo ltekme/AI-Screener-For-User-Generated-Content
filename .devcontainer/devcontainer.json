@@ -1,5 +1,6 @@
 {
   "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
+  "postCreateCommand": "echo 'alias tf=terraform' > /home/vscode/.bash_aliases",
   "customizations": {
     "vscode": {
       "settings": {

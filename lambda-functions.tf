@@ -16,7 +16,7 @@ module "user_input_lambda" {
   aws-region  = var.aws-region
   prefix      = var.project-name
   name        = "user-input-lambda"
-  description = "Lambda Function Used to server user input"
+  description = "Lambda Function used to validate user input"
 
   source_code_zip_path = data.archive_file.lambda_function-user_input.output_path
 
@@ -34,16 +34,16 @@ module "user_input_lambda" {
         Version = "2012-10-17"
         Statement = [
           {
-            Effect = "Allow",
-            Action = [
-              "sqs:ReceiveMessage",
-              "sqs:DeleteMessage",
-              "sqs:GetQueueAttributes",
-            ],
+            Effect   = "Allow",
+            Action   = "sqs:SendMessage",
             Resource = ["${aws_sqs_queue.user_submit.arn}"]
           }
         ]
       }
     }
   ]
+  
+  additional-environment-variables = {
+    "SQS_QUEUE_URL" = "${aws_sqs_queue.user_submit.url}"
+  }
 }
