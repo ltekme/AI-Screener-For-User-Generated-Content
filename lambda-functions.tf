@@ -5,8 +5,8 @@ User Input Lambda Module
 data "archive_file" "lambda_function-user_input" {
   // Zip file of the lambda function
   type        = "zip"
-  source_dir  = "${path.module}/user_input-code"
-  output_path = "${path.module}/user_input-code.zip"
+  source_dir  = "${path.module}/code/user_request"
+  output_path = "${path.module}/code/user_request.zip"
 }
 
 module "user_input_lambda" {
