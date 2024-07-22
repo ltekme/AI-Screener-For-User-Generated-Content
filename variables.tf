@@ -10,6 +10,11 @@ variable "aws-region" {
   default     = "us-east-1"
 }
 
+
+/*########################################################
+Optional Variable
+
+########################################################*/
 variable "lambda_function-user_input-execution_role" {
   description = "The ARN of the IAM role that the lambda function will assume"
   type        = string
@@ -26,4 +31,10 @@ variable "api_gateway-enable-logs" {
   description = "Enable CloudWatch Logs for the API Gateway"
   type        = bool
   default     = true
+}
+
+variable "api_gateway-route-submit-integration-role-arn" {
+  description = "The ARN of the IAM role that the API Gateway will assume for the submit_post route"
+  type        = string
+  default     = null
 }
