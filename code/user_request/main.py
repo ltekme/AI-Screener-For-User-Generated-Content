@@ -66,8 +66,11 @@ def lambda_handler(event, context):
         response["body"] = json.dumps({"Error": str(e)})
         return response
 
-    # Send to SQS
+    # Add Timestamp and Requester IP
     post_content['timestamp'] = str(event['requestContext']['requestTime'])
+    post_content['requester_ip'] = event['requestContext']['identity']['sourceIp']
+
+    # Send to SQS
     try:
         send_to_sqs(SQS_QUEUE_URL, post_content)
     except Exception as e:
