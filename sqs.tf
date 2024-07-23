@@ -33,7 +33,7 @@ resource "aws_sqs_queue" "accepted-request" {
 
 
 /*########################################################
-rejected Request SQS Queue
+Rejected Request SQS Queue
 
 ########################################################*/
 resource "aws_sqs_queue" "rejected-request" {

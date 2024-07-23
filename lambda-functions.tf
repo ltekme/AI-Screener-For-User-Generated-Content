@@ -106,7 +106,6 @@ module "content_flagger_lambda" {
             Action = ["sqs:SendMessage"],
             Resource = [
               "${aws_sqs_queue.accepted-request.arn}",
-              "${aws_sqs_queue.rejected-request.arn}",
             ]
           }
         ]
@@ -126,11 +125,26 @@ module "content_flagger_lambda" {
           }
         ]
       }
+    },
+    {
+      name = "publish-sns"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow",
+            Action = ["sns:Publish"],
+            Resource = [
+              "${aws_sns_topic.denied_requests.arn}"
+            ]
+          }
+        ]
+      }
     }
   ]
   additional-environment-variables = {
     "ACCEPTED_SQS_QUEUE_URL" = "${aws_sqs_queue.accepted-request.url}",
-    "REJECTED_SQS_QUEUE_URL" = "${aws_sqs_queue.rejected-request.url}",
+    "REJECTED_SNS_TOPIC_ARN" = "${aws_sns_topic.denied_requests.arn}",
     "MODEL_ID"               = "${var.bedrock-model-id}"
   }
 }

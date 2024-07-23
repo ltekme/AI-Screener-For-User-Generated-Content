@@ -26,11 +26,20 @@ def send_to_sqs(sqs_queue_url: str, body: dict) -> None:
     )
 
 
+def send_to_sns(sns_topic_arn: str, body: dict) -> None:
+    """Send Request to SNS"""
+    client = boto3.client('sns')
+    client.publish(
+        TopicArn=sns_topic_arn,
+        Message=json.dumps(body)
+    )
+
+
 def lambda_handler(event, context):
     """Flag user request and send to SQS"""
 
     ACCEPTED_SQS_QUEUE_URL: str = os.environ.get('ACCEPTED_SQS_QUEUE_URL')
-    REJECTED_SQS_QUEUE_URL: str = os.environ.get('REJECTED_SQS_QUEUE_URL')
+    REJECTED_SNS_TOPIC_ARN: str = os.environ.get('REJECTED_SNS_TOPIC_ARN')
     MODEL_ID: str = os.environ.get('MODEL_ID')
 
     response: dict = {
@@ -45,8 +54,8 @@ def lambda_handler(event, context):
 
     try:
         check_for_flag(MODEL_ID, post_content['title'], post_content['body'])
-    except EvaluationError as e:
-        send_to_sqs(REJECTED_SQS_QUEUE_URL, post_content)
+    except EvaluationError as e:    
+        send_to_sns(REJECTED_SNS_TOPIC_ARN, post_content)
         logger.out(e)
         return response
     except Exception as e:

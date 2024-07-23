@@ -50,3 +50,9 @@ variable "bedrock-model-id" {
   type        = string
   default     = "anthropic.claude-3-haiku-20240307-v1:0"
 }
+
+variable "admin-email" {
+  description = "The email address of the admin to notify when a request is denied"
+  type        = list(string)
+  default     = []
+}
