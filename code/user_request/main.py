@@ -5,18 +5,27 @@ import os
 import boto3
 
 
-class ValidationError(Exception):
-    pass
+class Logger:
+    def __init__(self, request: dict, ip: str):
+        self.request = request
+        self.ip = ip
+
+    def out(self, status: str):
+        print({"requester_ip": self.ip,
+               "post_content": self.request,
+               "status": status})
 
 
 def validate_request(post_content: dict) -> None:
     """Validate User Request"""
     if 'title' not in post_content:
-        raise ValidationError("Title is required")
+        raise Exception("Title is required")
     if 'body' not in post_content:
-        raise ValidationError("Body is required")
+        raise Exception("Body is required")
     if len(post_content['body']) > 500:
-        raise ValidationError("Body must be less than 500 characters long")
+        raise Exception("Body must be less than 500 characters long")
+    if len(post_content['title']) > 64:
+        raise Exception("Title must be less than 500 characters long")
 
 
 def send_to_sqs(sqs_queue_url: str, post_content: dict) -> None:
@@ -32,6 +41,7 @@ def lambda_handler(event, context):
     """Validate User Request and Send to SQS"""
 
     SQS_QUEUE_URL: str = os.environ.get('SQS_QUEUE_URL')
+
     response: dict = {
         "statusCode": 200,
         "headers": {
@@ -40,19 +50,25 @@ def lambda_handler(event, context):
         "body": json.dumps({"Message": "Success"})
     }
 
-    # Check Paramaters
-    if SQS_QUEUE_URL is None or SQS_QUEUE_URL == "":
-        response["statusCode"] = 500
-        response["body"] = json.dumps({"Error": "SQS_QUEUE_URL is not set"})
-        return response
-
     # Get User Request
     post_content: dict = json.loads(event['body'])
+    logger = Logger(
+        post_content,
+        event['requestContext']['identity']['sourceIp']
+    )
+
+    # Check Paramaters
+    if SQS_QUEUE_URL is None or SQS_QUEUE_URL == "":
+        logger.out("Missing SQS_QUEUE_URL")
+        response["statusCode"] = 500
+        response["body"] = json.dumps({"Error": "Service Unavaliable"})
+        return response
 
     # Validate Request
     try:
         validate_request(post_content)
-    except ValidationError as e:
+    except Exception as e:
+        logger.out(e)
         response["statusCode"] = 400
         response["body"] = json.dumps({"Error": str(e)})
         return response
@@ -61,10 +77,11 @@ def lambda_handler(event, context):
     try:
         send_to_sqs(SQS_QUEUE_URL, post_content)
     except Exception as e:
-        print(f"SQS_FUNCTION_ERROR: {e}")
+        logger.out(e)
         response["statusCode"] = 500
-        response["body"] = json.dumps(
-            {"Error": "Something Went Wrong"})
+        response["body"] = json.dumps({"Error": "Internal Server Error"})
         return response
+
+    logger.out("Success")
 
     return response
