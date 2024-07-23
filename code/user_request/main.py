@@ -52,17 +52,10 @@ def lambda_handler(event, context):
 
     # Get User Request
     post_content: dict = json.loads(event['body'])
-    logger = Logger(
+    logger: Logger = Logger(
         post_content,
         event['requestContext']['identity']['sourceIp']
     )
-
-    # Check Paramaters
-    if SQS_QUEUE_URL is None or SQS_QUEUE_URL == "":
-        logger.out("Missing SQS_QUEUE_URL")
-        response["statusCode"] = 500
-        response["body"] = json.dumps({"Error": "Service Unavaliable"})
-        return response
 
     # Validate Request
     try:
@@ -74,6 +67,7 @@ def lambda_handler(event, context):
         return response
 
     # Send to SQS
+    post_content['timestamp'] = str(event['requestContext']['requestTime'])
     try:
         send_to_sqs(SQS_QUEUE_URL, post_content)
     except Exception as e:

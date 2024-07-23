@@ -1,20 +1,44 @@
 /*########################################################
-User Submit Queue
+User Request Queue
 
 ########################################################*/
-resource "aws_sqs_queue" "user_submit" {
-  name_prefix = replace(replace("${var.project-name}_API_Stage", " ", "_"), "-", "_")
+resource "aws_sqs_queue" "user_request" {
+  name_prefix = replace(replace("${var.project-name}-User_Request", " ", "_"), "-", "_")
 
-  // Max time lambda can run is 15 minutes
   visibility_timeout_seconds = 900
+  message_retention_seconds  = (1 * 24 * 60 * 60) // 1 day
 }
 
-# resource "aws_lambda_event_source_mapping" "user_submit" {
-#   event_source_arn = aws_sqs_queue.user_submit.arn
-#   function_name    = module.user_input_lambda.lambda_function.arn
-#   batch_size       = 1
+resource "aws_lambda_event_source_mapping" "user_request" {
+  event_source_arn = aws_sqs_queue.user_request.arn
+  function_name    = module.content_flagger_lambda.lambda_function.arn
+  batch_size       = 1
 
-#   scaling_config {
-#     maximum_concurrency = 2
-#   }
-# }
+  scaling_config {
+    maximum_concurrency = 2
+  }
+}
+
+
+/*########################################################
+Accepted Request SQS Queue
+
+########################################################*/
+resource "aws_sqs_queue" "accepted-request" {
+  name_prefix = replace(replace("${var.project-name}-Accepted_Request", " ", "_"), "-", "_")
+
+  visibility_timeout_seconds = 900
+  message_retention_seconds  = (1 * 24 * 60 * 60) // 1 day
+}
+
+
+/*########################################################
+rejected Request SQS Queue
+
+########################################################*/
+resource "aws_sqs_queue" "rejected-request" {
+  name_prefix = replace(replace("${var.project-name}-Rejected_Request", " ", "_"), "-", "_")
+
+  visibility_timeout_seconds = 900
+  message_retention_seconds  = (1 * 24 * 60 * 60) // 1 day
+}

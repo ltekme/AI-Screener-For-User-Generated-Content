@@ -15,8 +15,14 @@ variable "aws-region" {
 Optional Variable
 
 ########################################################*/
-variable "lambda_function-user_input-execution_role" {
-  description = "The ARN of the IAM role that the lambda function will assume"
+variable "lambda_function-user_request-execution_role" {
+  description = "The ARN of the IAM role that the user_request lambda function will assume"
+  type        = string
+  default     = null
+}
+
+variable "lambda_function-content_flagger-execution_role" {
+  description = "The ARN of the IAM role that the content_flagger lambda function will assume"
   type        = string
   default     = null
 }
@@ -37,4 +43,10 @@ variable "api_gateway-route-submit-integration-role-arn" {
   description = "The ARN of the IAM role that the API Gateway will assume for the submit_post route"
   type        = string
   default     = null
+}
+
+variable "bedrock-model-id" {
+  description = "The ID of the Bedrock model to use for content flagging"
+  type        = string
+  default     = "anthropic.claude-3-haiku-20240307-v1:0"
 }

@@ -122,13 +122,13 @@ resource "aws_apigatewayv2_integration" "submit_post" {
   passthrough_behavior = "WHEN_NO_MATCH"
   integration_type     = "AWS_PROXY"
   integration_method   = "POST"
-  integration_uri      = module.user_input_lambda.lambda_function.invoke_arn
+  integration_uri      = module.user_request_lambda.lambda_function.invoke_arn
 }
 
 resource "aws_lambda_permission" "submit_post" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = module.user_input_lambda.lambda_function.arn
+  function_name = module.user_request_lambda.lambda_function.arn
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
 }
