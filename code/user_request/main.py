@@ -30,6 +30,7 @@ Logger: input user request content
 
 import json
 import os
+import datetime
 
 from helper import Logger, send_to_sqs, validate_request, ValidationError
 
@@ -47,14 +48,13 @@ def lambda_handler(event, context):
         "body": json.dumps({"Message": "Success"})
     }
 
-    # Get User Request
     request_content: dict = json.loads(event['body'])
     logger: Logger = Logger(request_content)
 
     try:
         validate_request(request_content)
-        request_content['timestamp'] = str(
-            event['requestContext']['requestTime'])
+        request_content['timestamp'] = (
+            datetime.datetime.now(datetime.UTC).isoformat()[:-6])
         request_content['requester_ip'] = event['requestContext']['identity']['sourceIp']
         send_to_sqs(SQS_QUEUE_URL, request_content)
         print(logger.out("Success"))

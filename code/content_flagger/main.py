@@ -70,14 +70,16 @@ def lambda_handler(event, context):
     logger: Logger = Logger(request_content)
 
     try:
-        check_for_flag(MODEL_ID, request_content['title'], request_content['body'])
+        check_for_flag(
+            MODEL_ID, request_content['title'], request_content['body'])
 
     except EvaluationError as reason:
         request_content['flagged_reason'] = str(reason)
         send_to_sns(REJECTED_SNS_TOPIC_ARN, request_content)
-        print(logger.out(f'Flagged For: {reason}'))
+        send_to_sqs(WRITER_SQS_QUEUE_URL, request_content)
+        logger.out("Flagged For: " + str(reason))
         return response
 
     send_to_sqs(WRITER_SQS_QUEUE_URL, request_content)
-    print(logger.out("Not Flagged"))
+    logger.out("Not Flagged")
     return response

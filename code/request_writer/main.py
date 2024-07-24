@@ -55,7 +55,7 @@ def lambda_handler(event, context):
 
     request_table = RequestTable(REQUEST_TABLE_NAME)
 
-    if request_content.get('flagged', False):
+    if bool(request_content.get('flagged_reason', False)):
         request_table.put_flagged_request(
             title=request_content['title'],
             body=request_content['body'],
@@ -63,12 +63,15 @@ def lambda_handler(event, context):
             requester_ip=request_content['requester_ip'],
             flagged_reason=request_content['flagged_reason']
         )
+        print(logger.out("Flagged Record Saved"))
+        return response
 
     request_table.put_unflagged_request(
         title=request_content['title'],
         body=request_content['body'],
         timestamp=request_content['timestamp']
     )
+
     print(logger.out("Record Saved"))
 
     return response
