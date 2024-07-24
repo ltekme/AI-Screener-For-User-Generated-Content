@@ -1,6 +1,6 @@
 {
   // "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
-  "build":{
+  "build": {
     "dockerfile": "Dockerfile",
     "context": ".."
   },
@@ -10,7 +10,9 @@
       "settings": {
         "[markdown]": {
           "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
-        }
+        },
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 3000
       },
       "extensions": [
         "samuelcolvin.jinjahtml",

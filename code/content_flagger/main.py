@@ -1,4 +1,37 @@
-"""Lambda Function to Filter User Content"""
+"""Lambda Function to Flag User Content
+
+Expected Input Body:
+{
+    "title": "Request Title",
+    "body": "Request Body"
+    "timestamp: "Time of the request"
+    "requester_ip": "Requester IP"
+}
+
+Environment Variables:
+- ACCEPTED_SQS_QUEUE_URL: URL of the SQS Queue to send the accepted request to
+- REJECTED_SNS_TOPIC_ARN: ARN of the SNS Notification Topic to send the rejected request to
+- MODEL_ID: ID of the bedrock model to used for flagging
+
+Logger: input user request content
+- out: Returns a dictionary with the request_content and status
+    status: When the request content is flagged, the reason for the flag would be stated. Otherwise, "Not Flagged". If any other error accored. The Error will be returned.
+    {
+        "request_content": {
+            "title": "Request Title",
+            "body": "Request Body"
+        },
+        "status": ""
+    }
+
+Not Flagged Content Output:
+{
+    "title": "Request Title",
+    "body": "Request Body"
+    "timestamp: "Time of the request"
+    "requester_ip": "Requester IP"
+}
+"""
 
 import os
 import json
@@ -12,7 +45,7 @@ class Logger:
 
     def out(self, status: str) -> dict:
         return {
-            "post_content": self.request,
+            "request_content": self.request,
             "status": {status}
         }
 
@@ -26,10 +59,12 @@ def send_to_sqs(sqs_queue_url: str, body: dict) -> None:
     )
 
 
-def send_to_sns(sns_topic_arn: str, body: dict) -> None:
+def send_to_sns(sns_topic_arn: str, body: dict, title: str) -> None:
     """Send Request to SNS"""
     client = boto3.client('sns')
+    subject = title or "AWS Notification Message"
     client.publish(
+        subject=subject,
         TopicArn=sns_topic_arn,
         Message=json.dumps(body)
     )
@@ -49,17 +84,33 @@ def lambda_handler(event, context):
     }
 
     # Get Request Content
-    post_content: dict = json.loads(event['Records'][0]['body'])
+    request_content: dict = json.loads(event['Records'][0]['body'])
 
-    logger: Logger = Logger(post_content)
+    logger: Logger = Logger(request_content)
 
     try:
-        check_for_flag(MODEL_ID, post_content['title'], post_content['body'])
+        check_for_flag(
+            MODEL_ID, request_content['title'], request_content['body'])
 
     except EvaluationError as reason:
-        post_content['flagged_reason'] = str(reason)
-        send_to_sqs(REJECTED_SQS_QUEUE_URL, post_content)
-        send_to_sns(REJECTED_SNS_TOPIC_ARN, post_content)
+        request_content['flagged_reason'] = str(reason)
+
+        try:
+            send_to_sns(REJECTED_SNS_TOPIC_ARN, request_content)
+        except Exception as e:
+            print(logger.out(e))
+            response["statusCode"] = 500
+            response["body"] = json.dumps({"Error": "Internal Server Error"})
+            return response
+
+        try:
+            send_to_sqs(REJECTED_SQS_QUEUE_URL, request_content)
+        except Exception as e:
+            print(logger.out(e))
+            response["statusCode"] = 500
+            response["body"] = json.dumps({"Error": "Internal Server Error"})
+            return response
+
         print(logger.out(f'Flagged For: {reason}'))
         return response
 
@@ -70,7 +121,13 @@ def lambda_handler(event, context):
         return response
 
     # not flagged
-    send_to_sqs(ACCEPTED_SQS_QUEUE_URL, post_content)
+    try:
+        send_to_sqs(ACCEPTED_SQS_QUEUE_URL, request_content)
+    except Exception as e:
+        print(logger.out(e))
+        response["statusCode"] = 500
+        response["body"] = json.dumps({"Error": "Internal Server Error"})
+        return response
 
     print(logger.out("Not Flagged"))
 

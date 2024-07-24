@@ -137,7 +137,7 @@ module "content_flagger_lambda" {
             Effect = "Allow",
             Action = ["sns:Publish"],
             Resource = [
-              "${aws_sns_topic.denied_requests.arn}"
+              "${aws_sns_topic.rejected_requests.arn}"
             ]
           }
         ]
@@ -147,7 +147,7 @@ module "content_flagger_lambda" {
   additional-environment-variables = {
     "ACCEPTED_SQS_QUEUE_URL" = "${aws_sqs_queue.accepted-request.url}",
     "REJECTED_SQS_QUEUE_URL" = "${aws_sqs_queue.rejected-request.url}",
-    "REJECTED_SNS_TOPIC_ARN" = "${aws_sns_topic.denied_requests.arn}",
+    "REJECTED_SNS_TOPIC_ARN" = "${aws_sns_topic.rejected_requests.arn}",
     "MODEL_ID"               = "${var.bedrock-model-id}"
   }
 }
