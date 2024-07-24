@@ -27,6 +27,12 @@ variable "lambda_function-content_flagger-execution_role" {
   default     = null
 }
 
+variable "lambda_function-request_writer-execution_role" {
+  description = "The ARN of the IAM role that the request_writer lambda function will assume"
+  type        = string
+  default     = null
+}
+
 variable "api_gateway-account-role" {
   description = "The ARN of the IAM role that the API Gateway will assume"
   type        = string

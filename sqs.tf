@@ -9,7 +9,7 @@ resource "aws_sqs_queue" "user_request" {
   message_retention_seconds  = (1 * 24 * 60 * 60) // 1 day
 }
 
-resource "aws_lambda_event_source_mapping" "user_request" {
+resource "aws_lambda_event_source_mapping" "user_request-lambda" {
   event_source_arn = aws_sqs_queue.user_request.arn
   function_name    = module.content_flagger_lambda.lambda_function.arn
   batch_size       = 1
@@ -21,24 +21,22 @@ resource "aws_lambda_event_source_mapping" "user_request" {
 
 
 /*########################################################
-Accepted Request SQS Queue
+Request Writer SQS Queue
 
 ########################################################*/
-resource "aws_sqs_queue" "accepted-request" {
-  name_prefix = replace(replace("${var.project-name}-Accepted_Request", " ", "_"), "-", "_")
+resource "aws_sqs_queue" "request-writer" {
+  name_prefix = replace(replace("${var.project-name}-Writer", " ", "_"), "-", "_")
 
   visibility_timeout_seconds = 900
   message_retention_seconds  = (1 * 24 * 60 * 60) // 1 day
 }
 
+resource "aws_lambda_event_source_mapping" "request-writer-lambda" {
+  event_source_arn = aws_sqs_queue.request-writer.arn
+  function_name    = module.request_writer_lambda.lambda_function.arn
+  batch_size       = 1
 
-/*########################################################
-Rejected Request SQS Queue
-
-########################################################*/
-resource "aws_sqs_queue" "rejected-request" {
-  name_prefix = replace(replace("${var.project-name}-Rejected_Request", " ", "_"), "-", "_")
-
-  visibility_timeout_seconds = 900
-  message_retention_seconds  = (1 * 24 * 60 * 60) // 1 day
+  scaling_config {
+    maximum_concurrency = 2
+  }
 }

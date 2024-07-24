@@ -1,7 +1,38 @@
-"""Create request to bedrock for content flagging"""
+"""Helper File for content flagger"""
 
 import boto3
 import json
+
+
+class Logger:
+    def __init__(self, request: dict):
+        self.request = request
+
+    def out(self, status: str) -> dict:
+        return {
+            "request_content": self.request,
+            "status": {status}
+        }
+
+
+def send_to_sqs(sqs_queue_url: str, body: dict) -> None:
+    """Send Request to SQS"""
+    client = boto3.client('sqs')
+    client.send_message(
+        QueueUrl=sqs_queue_url,
+        MessageBody=json.dumps(body)
+    )
+
+
+def send_to_sns(sns_topic_arn: str, body: dict, title: str = None) -> None:
+    """Send Request to SNS"""
+    client = boto3.client('sns')
+    subject = title or "AWS Notification Message"
+    client.publish(
+        TopicArn=sns_topic_arn,
+        Subject=subject,
+        Message=json.dumps(body)
+    )
 
 
 class EvaluationError(Exception):
@@ -9,9 +40,9 @@ class EvaluationError(Exception):
 
 
 def check_for_flag(model_id: str, title: str, body: str) -> None:
-    """Check for Flagged Content"""
+    """Create request to bedrock for content flagging"""
 
-    client: boto3.client = boto3.client('bedrock-runtime')
+    client = boto3.client('bedrock-runtime')
 
     prompt: str = f"""
 You are a moderator for an online platform that offers a space for users to share their thoughts and ideas.

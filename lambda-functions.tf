@@ -106,8 +106,7 @@ module "content_flagger_lambda" {
             Effect = "Allow",
             Action = ["sqs:SendMessage"],
             Resource = [
-              "${aws_sqs_queue.accepted-request.arn}",
-              "${aws_sqs_queue.rejected-request.arn}",
+              "${aws_sqs_queue.request-writer.arn}",
             ]
           }
         ]
@@ -145,9 +144,78 @@ module "content_flagger_lambda" {
     }
   ]
   additional-environment-variables = {
-    "ACCEPTED_SQS_QUEUE_URL" = "${aws_sqs_queue.accepted-request.url}",
-    "REJECTED_SQS_QUEUE_URL" = "${aws_sqs_queue.rejected-request.url}",
+    "WRITER_SQS_QUEUE_URL"   = "${aws_sqs_queue.request-writer.url}",
     "REJECTED_SNS_TOPIC_ARN" = "${aws_sns_topic.rejected_requests.arn}",
     "MODEL_ID"               = "${var.bedrock-model-id}"
+  }
+}
+
+
+/*########################################################
+DynamoDB Request Writer Lambda Module
+
+########################################################*/
+data "archive_file" "lambda_function-request_writer" {
+  // Zip file of the lambda function
+  type        = "zip"
+  source_dir  = "${path.module}/code/request_writer"
+  output_path = "${path.module}/code/request_writer.zip"
+}
+
+module "request_writer_lambda" {
+  // Lambda Function Defination
+  source = "./modules/lambda"
+
+  aws-region  = var.aws-region
+  prefix      = var.project-name
+  name        = "request_writer-function"
+  description = "Lambda Function used to write user request to dynamodb tables"
+
+  source_code_zip_path = data.archive_file.lambda_function-request_writer.output_path
+
+  lambda-config = {
+    handler        = "main.lambda_handler"
+    runtime        = "python3.12"
+    architecture   = "arm64"
+    execution_role = var.lambda_function-request_writer-execution_role
+  }
+
+  additional-permissions = [
+    {
+      name = "sqs-input"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow",
+            Action = [
+              "sqs:ReceiveMessage",
+              "sqs:DeleteMessage",
+              "sqs:GetQueueAttributes",
+            ],
+            Resource = [
+              "${aws_sqs_queue.request-writer.arn}"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      name = "dynamodb-permission"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect   = "Allow",
+            Action   = ["dynamodb:PutItem"],
+            Resource = ["${aws_dynamodb_table.request.arn}"]
+          }
+        ]
+      }
+    }
+  ]
+
+  additional-environment-variables = {
+    "REQUEST_TABLE_NAME" = "${aws_dynamodb_table.request.arn}"
   }
 }
