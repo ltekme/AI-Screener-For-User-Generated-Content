@@ -1,6 +1,23 @@
 # AI-Screener-For-User-Generated-Content
 
-A system to analyze user generated content.
+A concept for using bedrock to flag user generated content.
+
+## Usage
+
+In the tests, include bedrock_test.py inside is
+
+## Deploying
+
+As of right now this project cannot be deployed on aws adaedmy lab account due to the lack of amazon bedrock service.
+
+### Deploying on your own account
+
+```sh
+terraform init
+terrafrom apply -var "admin-email=example@email.com"
+```
+
+replace `example@email.com` with your own email.
 
 ## References
 

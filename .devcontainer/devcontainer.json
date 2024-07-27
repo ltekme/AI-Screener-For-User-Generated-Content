@@ -11,8 +11,15 @@
         "[markdown]": {
           "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
         },
-        "files.autoSave": "afterDelay",
-        "files.autoSaveDelay": 3000
+        "[html]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.suggest.insertMode": "replace",
+          "djlint.enableLinting": true
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.maxTokenizationLineLength": 2500
+        }
       },
       "extensions": [
         "samuelcolvin.jinjahtml",
