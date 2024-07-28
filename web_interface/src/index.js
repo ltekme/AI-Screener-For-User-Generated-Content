@@ -37,6 +37,7 @@ root.render(
             ltekme/AI-Screener-For-User-Generated-Content
           </a>
         </p>
+        {console.log('Hi :]')}
       </div>
     </BrowserRouter>
   </React.StrictMode>

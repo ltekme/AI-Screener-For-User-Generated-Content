@@ -48,13 +48,12 @@ const ContentSubmitForm = () => {
       if (!response.ok) {
         let errorResponse = await response.json();
         console.log(errorResponse);
-        bad_resault(errorResponse.message);
+        bad_resault(errorResponse.Error);
         return;
       }
 
       let response_json = await response.json();
-      console.log("Submitted Content");
-      good_resault(response_json.message);
+      good_resault(response_json.Message);
 
       setTitle("");
       setBody("");

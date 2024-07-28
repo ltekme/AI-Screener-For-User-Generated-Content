@@ -52,6 +52,28 @@ class TestAPIOutput(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"Error": "Body is required"})
 
+    def test_error_empty_title(self):
+        response = requests.post(
+            self.API_URL + "/submit_post",
+            json={
+                "title": "",
+                "body": "This is a test post."
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {"Error": "Title is required"})
+
+    def test_error_empty_body(self):
+        response = requests.post(
+            self.API_URL + "/submit_post",
+            json={
+                "title": "Hello, World!",
+                "body": ""
+            }
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {"Error": "Body is required"})
+
 
 if __name__ == '__main__':
     unittest.main()

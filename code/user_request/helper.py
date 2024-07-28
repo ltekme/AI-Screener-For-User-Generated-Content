@@ -18,14 +18,14 @@ class ValidationError(Exception):
 
 def validate_request(request_content: dict) -> None:
     """Validate User Request"""
-    if 'title' not in request_content:
-        raise Exception("Title is required")
-    if 'body' not in request_content:
-        raise Exception("Body is required")
+    if 'title' not in request_content or len(request_content['title']) == 0:
+        raise ValidationError("Title is required")
+    if 'body' not in request_content or len(request_content['body']) == 0:
+        raise ValidationError("Body is required")
     if len(request_content['body']) > 500:
-        raise Exception("Body must be less than 500 characters long")
+        raise ValidationError("Body must be less than 500 characters long")
     if len(request_content['title']) > 64:
-        raise Exception("Title must be less than 500 characters long")
+        raise ValidationError("Title must be less than 500 characters long")
 
 
 def send_to_sqs(sqs_queue_url: str, request_content: dict) -> None:
