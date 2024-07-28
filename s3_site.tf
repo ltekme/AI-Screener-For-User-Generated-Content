@@ -17,36 +17,20 @@ resource "random_string" "web-interafce-bucket-suffix" {
   numeric = true
 }
 
-resource "aws_s3_bucket_website_configuration" "web-interafce" {
-  // enable static website hosting
-  bucket = aws_s3_bucket.web-interafce.id
-
-  index_document {
-    suffix = "index.html"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "example" {
-  bucket = aws_s3_bucket.web-interafce.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
 resource "aws_s3_bucket_policy" "web-interafce" {
-  // Bucket Policy for public access
+  // Bucket Policy for CloudFront OAI
   bucket = aws_s3_bucket.web-interafce.id
   policy = jsonencode(
     {
       Version = "2012-10-17",
       Statement = [
         {
-          Effect    = "Allow",
-          Principal = "*",
-          Action    = "s3:GetObject",
-          Resource  = "${aws_s3_bucket.web-interafce.arn}/*",
+          Effect = "Allow",
+          Principal = {
+            AWS = ["${aws_cloudfront_origin_access_identity.main-web-interface-bucket.iam_arn}"]
+          }
+          Action   = "s3:GetObject",
+          Resource = "${aws_s3_bucket.web-interafce.arn}/*",
         },
       ],
     }

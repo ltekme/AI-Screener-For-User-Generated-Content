@@ -6,6 +6,6 @@ output "web-interafce-bucket-name" {
   value = aws_s3_bucket.web-interafce.bucket
 }
 
-output "web-interafce-bucket-url" {
-  value = aws_s3_bucket_website_configuration.web-interafce.website_endpoint
+output "web-interafce-cloudfront-domain-name" {
+  value = aws_cloudfront_distribution.main.domain_name  
 }
