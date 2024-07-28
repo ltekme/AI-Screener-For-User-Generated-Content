@@ -7,19 +7,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Navgation from "./componemt/Navgation";
 
 import Home from "./pages";
+import { APIDisplay, API } from "./componemt/GetAPI";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Navgation />
-      <Routes>
-        <Route exact path="/" element={<Home />} />
-        {/* <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/blogs" element={<Blogs />} />
-        <Route path="/sign-up" element={<SignUp />} /> */}
-      </Routes>
+      <div className="container">
+        <Routes>
+          <Route exact path="/" element={<Home />} />
+        </Routes>
+        <APIDisplay api_url={API} />
+      </div>
     </BrowserRouter>
   </React.StrictMode>
 );
