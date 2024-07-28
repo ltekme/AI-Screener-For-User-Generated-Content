@@ -18,7 +18,15 @@ root.render(
         <Routes>
           <Route exact path="/" element={<Home />} />
         </Routes>
+      </div>
+      <div className="fixed-bottom container">
         <APIDisplay api_url={API} />
+        <p>
+          Project Repo:{" "}
+          <a href="https://github.com/ltekme/AI-Screener-For-User-Generated-Content">
+            ltekme/AI-Screener-For-User-Generated-Content
+          </a>
+        </p>
       </div>
     </BrowserRouter>
   </React.StrictMode>

@@ -11,14 +11,20 @@ let Navgation = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="/"><span style={{color: 'blue'}}>Home</span></Nav.Link>
-            <Nav.Link href="/noflag"><span style={{color: 'green'}}>Non-Flagged Content</span></Nav.Link>
-            <Nav.Link href="/flagged"><span style={{color: 'red'}}>Flagged Content</span></Nav.Link>
+            <Nav.Link href="/">
+              <span className="text-primary">Home</span>
+            </Nav.Link>
+            <Nav.Link href="/noflag">
+              <span className="text-success">Non-Flagged Content</span>
+            </Nav.Link>
+            <Nav.Link href="/flagged">
+              <span className="text-danger">Flagged Content</span>
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>
-          );
+  );
 };
 
 export default Navgation;

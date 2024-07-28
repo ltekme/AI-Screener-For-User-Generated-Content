@@ -1,32 +1,16 @@
 import React from "react";
-
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+import ContentSubmitForm from "../componemt/ContentSubmitForm";
 
 const Home = () => {
   return (
-    <div className="container">
-      <h1 style={{ marginTop: "8px" }}>Write Something</h1>
+    <>
+      <h1 style={{ marginTop: "8px" }}>Send Content</h1>
       <p>
-        Project Repo:{" "}
-        <a href="https://github.com/ltekme/AI-Screener-For-User-Generated-Content">
-          ltekme/AI-Screener-For-User-Generated-Content
-        </a>
+        Write something. After a series of sqs queues and lambda functions, your
+        content will be categorized as good and bad.
       </p>
-      <Form>
-        <Form.Group className="mb-3" controlId="title">
-          <Form.Label>Title</Form.Label>
-          <Form.Control type="text" placeholder="Enter title" />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="body">
-          <Form.Label>Content</Form.Label>
-          <Form.Control as="textarea" rows={3} placeholder="Enter title" />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          Submit
-        </Button>
-      </Form>
-    </div>
+      <ContentSubmitForm />
+    </>
   );
 };
 
