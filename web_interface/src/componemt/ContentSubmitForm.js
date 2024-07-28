@@ -1,22 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { API } from "./GetAPI";
 
 const ContentSubmitForm = () => {
+  const [validConfig, setValidConfig] = useState(true);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [resault, setResault] = useState({
     text: "",
     colorClass: "",
-    displayClass: "d-none",
   });
 
   const good_resault = (msg) => {
     setResault({
       text: `[${msg}]`,
       colorClass: "text-success",
-      displayClass: "d-block",
     });
   };
 
@@ -24,22 +23,27 @@ const ContentSubmitForm = () => {
     setResault({
       text: `[${msg}]`,
       colorClass: "text-danger",
-      displayClass: "d-block",
     });
   };
+
+  useEffect(() => {
+    if (API === null) {
+      setValidConfig(false);
+      bad_resault("API is not set");
+    }
+  }, []);
 
   const sendContent = async (form) => {
     form.preventDefault();
     const request_url = API + "/submit_post";
 
     try {
-      let response = await fetch(request_url, {
+      let request_body = {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: title, body: body }),
-      });
+      };
+      let response = await fetch(request_url, request_body);
 
       if (!response.ok) {
         let errorResponse = await response.json();
@@ -56,12 +60,19 @@ const ContentSubmitForm = () => {
       setBody("");
       return;
     } catch (e) {
-      console.log(e);
-      bad_resault(e);
+      setValidConfig(false);
+      bad_resault("Bad API");
       return;
     }
   };
 
+  if (!validConfig) {
+    return (
+      <p>
+        <span className={resault.colorClass}>{resault.text}</span>
+      </p>
+    );
+  }
   return (
     <Form onSubmit={sendContent}>
       <Form.Group className="mb-3" controlId="title">
@@ -85,10 +96,14 @@ const ContentSubmitForm = () => {
           name="body"
         />
       </Form.Group>
-      <div style={{ marginBottom: "16px" }} className={resault.displayClass}>
-        Submit Resault:{" "}
-        <span className={resault.colorClass}>{resault.text}</span>
-      </div>
+      {resault.text ? (
+        <div style={{ marginBottom: "16px" }}>
+          Submit Resault:{" "}
+          <span className={resault.colorClass}>{resault.text}</span>
+        </div>
+      ) : (
+        <></>
+      )}
       <Button variant="primary" type="submit">
         Submit
       </Button>
