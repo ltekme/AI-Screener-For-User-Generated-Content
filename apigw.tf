@@ -134,3 +134,32 @@ resource "aws_lambda_permission" "submit_post" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
 }
+
+
+/*########################################################
+API Gateway Resource
+
+Path: /dynamo_query
+
+########################################################*/
+resource "aws_apigatewayv2_route" "dynamo_query" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "GET /dynamo_query"
+  target    = "integrations/${aws_apigatewayv2_integration.dynamo_query.id}"
+}
+
+resource "aws_apigatewayv2_integration" "dynamo_query" {
+  api_id               = aws_apigatewayv2_api.main.id
+  passthrough_behavior = "WHEN_NO_MATCH"
+  integration_type     = "AWS_PROXY"
+  integration_method   = "POST"
+  integration_uri      = module.request_reader_lambda.lambda_function.invoke_arn
+}
+
+resource "aws_lambda_permission" "dynamo_query" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = module.request_reader_lambda.lambda_function.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
+}

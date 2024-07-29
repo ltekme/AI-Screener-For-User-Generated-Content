@@ -9,7 +9,7 @@ class RequestTable:
         self.table_name = table_name
         self.paginator = self.client.get_paginator('query')
 
-    def make_response(self, flag: str, last_timespamp: str = None):
+    def make_response(self, flag: str, last_timespamp: str = None, item_per_page: int = 10):
 
         class Response:
             def __init__(self, paginator, table_name: str, flag: str, last_eval_key: dict = {}, item_per_page: int = 10):
@@ -54,15 +54,15 @@ class RequestTable:
         if last_timespamp:
             last_eval_key = {'flagged': {'S': flag},
                              'timestamp': {'S': last_timespamp}}
-            return Response(self.paginator, self.table_name, flag, last_eval_key)
+            return Response(self.paginator, self.table_name, flag, last_eval_key, item_per_page)
 
-        return Response(self.paginator, self.table_name, flag)
+        return Response(self.paginator, self.table_name, flag, item_per_page)
 
-    def flagged(self, last_timestamp: str = None):
-        return self.make_response('True', last_timestamp)
+    def flagged(self, last_timestamp: str = None, item_per_page: int = 10):
+        return self.make_response('True', last_timestamp, item_per_page)
 
-    def not_flagged(self, last_timestamp: str = None):
-        return self.make_response('False', last_timestamp)
+    def not_flagged(self, last_timestamp: str = None, item_per_page: int = 10):
+        return self.make_response('False', last_timestamp, item_per_page)
 
 
 request_table = RequestTable('AI_Content_Screener-UserRequest')

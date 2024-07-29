@@ -258,7 +258,7 @@ module "request_reader_lambda" {
         Statement = [
           {
             Effect   = "Allow",
-            Action   = ["dynamodb:Scan"],
+            Action   = ["dynamodb:Query"],
             Resource = ["${aws_dynamodb_table.request.arn}"]
           }
         ]
