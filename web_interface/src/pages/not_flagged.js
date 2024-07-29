@@ -43,7 +43,7 @@ const NotFlaggedInterface = () => {
     // Save the current last timestamp to the history
     setPreviousTimestamps([...previous_timestamps, last_timestamp]);
 
-    const next_query_timestamp = items[items.length - 1].timestamp;
+    const next_query_timestamp = items[items.length - 1]?.timestamp;
 
     const newItems = await QueryAPI({
       flagged: "false",
@@ -90,7 +90,7 @@ const NotFlaggedInterface = () => {
 
   return (
     <div>
-      <h1>Non-Flagged Content</h1>
+      <h1 className="text-success">Non-Flagged Content</h1>
       <Form onSubmit={updateQuery}>
         <Form.Group as={Row}>
           <Form.Label column sm="3">
@@ -151,9 +151,13 @@ const NotFlaggedInterface = () => {
               Previous Page
             </Button>
           )}
-          <Button className="btn-sm" onClick={nextPage}>
-            Next Page
-          </Button>
+          {items.length === 0 ? (
+            <></>
+          ) : (
+            <Button className="btn-sm" onClick={nextPage}>
+              Next Page
+            </Button>
+          )}
         </div>
       )}
     </div>
