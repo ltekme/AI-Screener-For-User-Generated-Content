@@ -1,57 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
-import API from "../componemt/GetAPI";
+import QueryAPI from "../componemt/QueryAPI";
 
 const NotFlaggedInterface = () => {
-  const [last_timestamp, setLastTimestamp] = useState();
-  const [item_per_page, setItemPerPage] = useState(10);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const queryAPI = async () => {
+  const updateQuery = async (e) => {
+    e.preventDefault();
     setLoading(true);
-    try {
-      console.log(last_timestamp);
-      let queryUrl =
-        API +
-        "/dynamo_query?" +
-        new URLSearchParams({
-          flagged: false,
-          last_timestamp: last_timestamp,
-          item_per_page: item_per_page,
-        }).toString();
 
-      console.log(queryUrl);
-      let response = await fetch(queryUrl);
+    let formData = new FormData(e.target);
+    let lastTimestampValue = formData.get("last_timestamp") || "";
+    let itemPerPageValue = formData.get("item_per_page") || 10;
 
-      if (!response.ok) {
-        let errorResponse = await response.json();
-        console.log(errorResponse);
-        return;
-      }
+    const items = await QueryAPI({
+      flagged: "false",
+      item_per_page: itemPerPageValue,
+      last_timestamp: lastTimestampValue,
+    });
 
-      setItems(await response.json());
-    } catch (error) {
-      console.log(error);
-
-      return;
-    }
+    setItems(items);
     setLoading(false);
   };
 
-  const updateQuery = async (e) => {
-    e.preventDefault();
-    let formData = new FormData(e.target);
-    setLastTimestamp(formData.get("last_timestamp"));
-    setItemPerPage(formData.get("item_per_page"));
-		console.log(formData.get("last_timestamp"));
-    await queryAPI();
-  };
+  useEffect(() => {
+    updateQuery({ preventDefault: () => {} });
+  }, []);
 
   return (
     <div>
@@ -65,7 +45,7 @@ const NotFlaggedInterface = () => {
             <Form.Control
               type="number"
               placeholder="Item Per Page"
-              defaultValue={item_per_page}
+              defaultValue={10}
               name="item_per_page"
             />
           </Col>
@@ -78,7 +58,6 @@ const NotFlaggedInterface = () => {
             <Form.Control
               type="datetime-local"
               placeholder=""
-              defaultValue={last_timestamp}
               name="last_timestamp"
             />
           </Col>
