@@ -219,3 +219,54 @@ module "request_writer_lambda" {
     "REQUEST_TABLE_NAME" = "${aws_dynamodb_table.request.arn}"
   }
 }
+
+
+/*########################################################
+DynamoDB Request Reader
+
+########################################################*/
+data "archive_file" "lambda_function-request_reader" {
+  // Zip file of the lambda function
+  type        = "zip"
+  source_dir  = "${path.module}/code/request_reader"
+  output_path = "${path.module}/code/request_reader.zip"
+}
+
+module "request_reader_lambda" {
+  // Lambda Function Defination
+  source = "./modules/lambda"
+
+  aws-region  = var.aws-region
+  prefix      = var.project-name
+  name        = "request_reader-function"
+  description = "Lambda Function used to read user request to dynamodb tables"
+
+  source_code_zip_path = data.archive_file.lambda_function-request_reader.output_path
+
+  lambda-config = {
+    handler        = "main.lambda_handler"
+    runtime        = "python3.12"
+    architecture   = "arm64"
+    execution_role = var.lambda_function-request_reader-execution_role
+  }
+
+  additional-permissions = [
+    {
+      name = "dynamodb-permission"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect   = "Allow",
+            Action   = ["dynamodb:Scan"],
+            Resource = ["${aws_dynamodb_table.request.arn}"]
+          }
+        ]
+      }
+    }
+  ]
+
+  additional-environment-variables = {
+    "REQUEST_TABLE_NAME" = "${aws_dynamodb_table.request.arn}"
+  }
+}

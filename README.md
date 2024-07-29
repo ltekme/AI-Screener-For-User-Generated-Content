@@ -14,7 +14,7 @@ As of right now this project cannot be deployed on aws adaedmy lab account due t
 
 ```sh
 terraform init
-terrafrom apply -var "admin-email=example@email.com"
+terrafrom apply -var "admin-email=['example@email.com']"
 ```
 
 replace `example@email.com` with your own email.
