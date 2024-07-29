@@ -13,7 +13,7 @@ let Navgation = () => {
             <Nav.Link href="/">
               <span className="text-primary">Home</span>
             </Nav.Link>
-            <Nav.Link href="/noflag">
+            <Nav.Link href="/not_flagged">
               <span className="text-success">Non-Flagged Content</span>
             </Nav.Link>
             <Nav.Link href="/flagged">
