@@ -31,7 +31,7 @@ root.render(
           <Route exact path="*" element={<NotFound />} />
         </Routes>
       </div>
-      <div className="fixed-bottom container">
+      <footer className="container">
         <APIDisplay api_url={API} />
         <p>
           Project Repo:{" "}
@@ -40,7 +40,7 @@ root.render(
           </a>
         </p>
         {console.log("Hi :]")}
-      </div>
+      </footer>
     </BrowserRouter>
   </React.StrictMode>
 );

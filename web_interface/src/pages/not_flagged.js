@@ -10,6 +10,54 @@ import QueryAPI from "../componemt/QueryAPI";
 const NotFlaggedInterface = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [previous_timestamps, setPreviousTimestamps] = useState([]);
+  const [last_timestamp, setLastTimestamp] = useState("");
+  const [item_per_page, setItemPerPage] = useState(10);
+
+  const prevPage = async () => {
+    if (previous_timestamps.length === 0) return;
+
+    setLoading(true);
+
+    // Get the last timestamp from the history
+    const newLastTimestamp = previous_timestamps.pop();
+
+    const newItems = await QueryAPI({
+      flagged: "false",
+      item_per_page: item_per_page,
+      last_timestamp: newLastTimestamp,
+    });
+
+    setItems(newItems);
+
+    // Update the timestamps
+    setLastTimestamp(newLastTimestamp);
+    setPreviousTimestamps([...previous_timestamps]);
+
+    setLoading(false);
+  };
+
+  const nextPage = async () => {
+    setLoading(true);
+
+    // Save the current last timestamp to the history
+    setPreviousTimestamps([...previous_timestamps, last_timestamp]);
+
+    const next_query_timestamp = items[items.length - 1].timestamp;
+
+    const newItems = await QueryAPI({
+      flagged: "false",
+      item_per_page: item_per_page,
+      last_timestamp: next_query_timestamp,
+    });
+
+    setItems(newItems);
+
+    // Update the last timestamp
+    setLastTimestamp(next_query_timestamp);
+
+    setLoading(false);
+  };
 
   const updateQuery = async (e) => {
     e.preventDefault();
@@ -19,6 +67,9 @@ const NotFlaggedInterface = () => {
     let lastTimestampValue = formData.get("last_timestamp") || "";
     let itemPerPageValue = formData.get("item_per_page") || 10;
 
+    setLastTimestamp(lastTimestampValue);
+    setItemPerPage(itemPerPageValue);
+
     const items = await QueryAPI({
       flagged: "false",
       item_per_page: itemPerPageValue,
@@ -26,6 +77,10 @@ const NotFlaggedInterface = () => {
     });
 
     setItems(items);
+    setLastTimestamp(
+      items.length > 0 ? items[0].timestamp : lastTimestampValue
+    );
+    setPreviousTimestamps([]);
     setLoading(false);
   };
 
@@ -45,7 +100,7 @@ const NotFlaggedInterface = () => {
             <Form.Control
               type="number"
               placeholder="Item Per Page"
-              defaultValue={10}
+              defaultValue={item_per_page}
               name="item_per_page"
             />
           </Col>
@@ -85,6 +140,22 @@ const NotFlaggedInterface = () => {
           })}
         </tbody>
       </table>
+      {loading ? (
+        <></>
+      ) : (
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          {previous_timestamps.length === 0 ? (
+            <></>
+          ) : (
+            <Button className="btn-sm" onClick={prevPage}>
+              Previous Page
+            </Button>
+          )}
+          <Button className="btn-sm" onClick={nextPage}>
+            Next Page
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
