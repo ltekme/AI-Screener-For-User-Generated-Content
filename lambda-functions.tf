@@ -270,3 +270,69 @@ module "request_reader_lambda" {
     "REQUEST_TABLE_NAME" = "${aws_dynamodb_table.request.arn}"
   }
 }
+
+
+/*########################################################
+SNS Topic Controller API
+
+########################################################*/
+data "archive_file" "lambda_function-sns_control" {
+  // Zip file of the lambda function
+  type        = "zip"
+  source_dir  = "${path.module}/code/sns_control"
+  output_path = "${path.module}/code/sns_control.zip"
+}
+
+module "sns_control_lambda" {
+  // Lambda Function Defination
+  source = "./modules/lambda"
+
+  aws-region  = var.aws-region
+  prefix      = var.project-name
+  name        = "sns_control-function"
+  description = "Lambda Function used to control sns topic"
+
+  source_code_zip_path = data.archive_file.lambda_function-sns_control.output_path
+
+  lambda-config = {
+    handler        = "main.lambda_handler"
+    runtime        = "python3.12"
+    architecture   = "arm64"
+    execution_role = var.lambda_function-sns_control-execution_role
+  }
+
+  additional-permissions = [
+    {
+      name = "sns-control"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect   = "Allow",
+            Action   = ["sns:Subscribe"],
+            Resource = ["${aws_sns_topic.rejected_requests.arn}"]
+            Condition = {
+              StringEquals = {
+                "sns:protocol" = "email"
+              }
+            }
+          },
+          {
+            Effect   = "Allow",
+            Action   = ["sns:Unsubscribe"],
+            Resource = ["${aws_sns_topic.rejected_requests.arn}"]
+          },
+          {
+            Effect   = "Allow",
+            Action   = ["sns:ListSubscriptionsByTopic"],
+            Resource = ["${aws_sns_topic.rejected_requests.arn}"]
+          }
+        ]
+      }
+    }
+  ]
+
+  additional-environment-variables = {
+    "NOTIFY_SNS_TOPIC" = "${aws_sns_topic.rejected_requests.arn}"
+  }
+}

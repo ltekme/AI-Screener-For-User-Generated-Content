@@ -139,7 +139,7 @@ resource "aws_lambda_permission" "submit_post" {
 /*########################################################
 API Gateway Resource
 
-Path: /dynamo_query
+Path: /api/dynamo_query
 
 ########################################################*/
 resource "aws_apigatewayv2_route" "dynamo_query" {
@@ -162,4 +162,82 @@ resource "aws_lambda_permission" "dynamo_query" {
   function_name = module.request_reader_lambda.lambda_function.arn
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
+}
+
+
+/*########################################################
+API Gateway Resource
+
+Path: /api/sns_control - Permissions
+
+########################################################*/
+resource "aws_lambda_permission" "sns_control" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = module.sns_control_lambda.lambda_function.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
+}
+
+
+/*########################################################
+API Gateway Resource
+
+Path: /api/sns_control - GET
+
+########################################################*/
+resource "aws_apigatewayv2_route" "sns_control-GET" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "GET /api/sns_control"
+  target    = "integrations/${aws_apigatewayv2_integration.sns_control-GET.id}"
+}
+
+resource "aws_apigatewayv2_integration" "sns_control-GET" {
+  api_id               = aws_apigatewayv2_api.main.id
+  passthrough_behavior = "WHEN_NO_MATCH"
+  integration_type     = "AWS_PROXY"
+  integration_method   = "POST"
+  integration_uri      = module.sns_control_lambda.lambda_function.invoke_arn
+}
+
+
+/*########################################################
+API Gateway Resource
+
+Path: /api/sns_control - POST
+
+########################################################*/
+resource "aws_apigatewayv2_route" "sns_control-POST" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "POST /api/sns_control"
+  target    = "integrations/${aws_apigatewayv2_integration.sns_control-POST.id}"
+}
+
+resource "aws_apigatewayv2_integration" "sns_control-POST" {
+  api_id               = aws_apigatewayv2_api.main.id
+  passthrough_behavior = "WHEN_NO_MATCH"
+  integration_type     = "AWS_PROXY"
+  integration_method   = "POST"
+  integration_uri      = module.sns_control_lambda.lambda_function.invoke_arn
+}
+
+
+/*########################################################
+API Gateway Resource
+
+Path: /api/sns_control - DELETE
+
+########################################################*/
+resource "aws_apigatewayv2_route" "sns_control-DELETE" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "DELETE /api/sns_control"
+  target    = "integrations/${aws_apigatewayv2_integration.sns_control-DELETE.id}"
+}
+
+resource "aws_apigatewayv2_integration" "sns_control-DELETE" {
+  api_id               = aws_apigatewayv2_api.main.id
+  passthrough_behavior = "WHEN_NO_MATCH"
+  integration_type     = "AWS_PROXY"
+  integration_method   = "POST"
+  integration_uri      = module.sns_control_lambda.lambda_function.invoke_arn
 }
