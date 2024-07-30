@@ -1,8 +1,10 @@
 const GetAPI = async () => {
   let file_content = await fetch("/API.txt");
-  const API = await file_content.text();
+  let file_content_text = await file_content.text();
 
-  return API.includes("<html>") || !API.startsWith("http") ? null : API;
+  return file_content_text.includes("<html>") || !file_content_text.startsWith("http")
+    ? window.location.origin + "/api"
+    : file_content_text + "/api";
 };
 
 let API = await GetAPI();

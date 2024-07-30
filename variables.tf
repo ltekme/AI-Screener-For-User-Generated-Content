@@ -67,3 +67,9 @@ variable "admin-email" {
   type        = list(string)
   default     = []
 }
+
+variable "use-cloudfront-api" {
+  description = "Controls weather to upload API.txt file to the S3 bucket"
+  type        = bool
+  default     = true
+}

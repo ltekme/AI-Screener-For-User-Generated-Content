@@ -26,6 +26,13 @@ const ContentSubmitForm = () => {
     });
   };
 
+  const set_sending_state = () => {
+    setResault({
+      text: "Sending...",
+      colorClass: "text-primary",
+    });
+  };
+
   useEffect(() => {
     if (API === null) {
       setValidConfig(false);
@@ -35,6 +42,7 @@ const ContentSubmitForm = () => {
 
   const sendContent = async (form) => {
     form.preventDefault();
+    set_sending_state();
     const request_url = API + "/submit_post";
 
     try {

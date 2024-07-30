@@ -73,6 +73,7 @@ resource "null_resource" "web-interface-content-sync" {
 }
 
 resource "aws_s3_object" "web-interface-api-url-file" {
+  count = var.use-cloudfront-api == true ? 1 : 0
   // Create a file with the API URL for web interface
   bucket = aws_s3_bucket.web-interafce.id
   key    = "API.txt"
@@ -80,6 +81,20 @@ resource "aws_s3_object" "web-interface-api-url-file" {
   content      = aws_apigatewayv2_stage.main.invoke_url
   content_type = "text/plain"
 
+  // trigger replace
+  etag = md5(aws_apigatewayv2_stage.main.invoke_url)
+
   // Put file after sync content
   depends_on = [null_resource.web-interface-content-sync]
+}
+
+resource "null_resource" "CF-invalidation" {
+
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.main.id} --paths '/*' --region ${var.aws-region}"
+  }
 }
