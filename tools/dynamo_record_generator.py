@@ -37,6 +37,7 @@ class RequestTable:
 def generate_good_request(count=1):
     request_table = RequestTable(TABLE_NAME)
     for i in range(count):
+        print(f'good request title {i}')
         request_table.put_unflagged_request(
             title=f'good request title {i}',
             body=f'good request body {i}',
@@ -47,6 +48,7 @@ def generate_good_request(count=1):
 def generate_bad_request(count=1):
     request_table = RequestTable(TABLE_NAME)
     for i in range(count):
+        print(f'bad request title {i}')
         request_table.put_flagged_request(
             title=f'bad request title {i}',
             body=f'bad request body {i}',

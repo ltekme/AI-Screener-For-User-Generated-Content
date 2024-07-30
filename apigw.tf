@@ -110,12 +110,12 @@ resource "aws_iam_role" "main-api_gateway" {
 /*########################################################
 API Gateway Resource
 
-Path: /submit_post
+Path: /api/submit_post
 
 ########################################################*/
 resource "aws_apigatewayv2_route" "submit_post" {
   api_id    = aws_apigatewayv2_api.main.id
-  route_key = "POST /submit_post"
+  route_key = "POST /api/submit_post"
   target    = "integrations/${aws_apigatewayv2_integration.submit_post.id}"
 }
 
@@ -144,7 +144,7 @@ Path: /dynamo_query
 ########################################################*/
 resource "aws_apigatewayv2_route" "dynamo_query" {
   api_id    = aws_apigatewayv2_api.main.id
-  route_key = "GET /dynamo_query"
+  route_key = "GET /api/dynamo_query"
   target    = "integrations/${aws_apigatewayv2_integration.dynamo_query.id}"
 }
 

@@ -10,6 +10,9 @@ def lambda_handler(event, context):
 
     response: dict = {
         "statusCode": 200,
+        "headers": {
+            "Content-Type": "application/json"
+        },
         "body": json.dumps({"Message": "Sucess"})
     }
 
