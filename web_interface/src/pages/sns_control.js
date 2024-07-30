@@ -83,8 +83,42 @@ const SNSControl = () => {
       setLoading(false);
       return;
     } catch (error) {
-      console.log(error);
-      bad_api(error);
+      console.log(error.toString());
+      bad_api(error.toString());
+      return;
+    }
+  };
+
+  const deleteSubscriber = async (email) => {
+    clear_api();
+    setLoading(true);
+
+    let queryURL =
+      API +
+      "/sns_control?" +
+      new URLSearchParams({
+        email: email,
+      }).toString();
+
+    try {
+      let response = await fetch(queryURL, { method: "DELETE" });
+
+      if (!response.ok) {
+        let errorResponse = await response.json();
+        console.log(errorResponse);
+        bad_api(errorResponse.Error);
+        setLoading(false);
+        return;
+      }
+
+      let result = await response.json();
+      good_api(result.Message);
+      await getSubscribers();
+      setLoading(false);
+      return;
+    } catch (error) {
+      console.log(error.toString());
+      bad_api(error.toString());
       return;
     }
   };
@@ -107,10 +141,10 @@ const SNSControl = () => {
       </p>
       <Form onSubmit={newSubscriber}>
         <Form.Group as={Row}>
-          <Col sm="3">
-            <Form.Label>New subscriber</Form.Label>
+          <Col sm="2">
+            <Form.Label>New admin to notify</Form.Label>
           </Col>
-          <Col sm="4">
+          <Col sm="3">
             <Form.Control
               type="email"
               placeholder="admin@example.com"
@@ -141,7 +175,6 @@ const SNSControl = () => {
             <th>Action</th>
           </tr>
           {items.map((item) => {
-            console.log(item);
             return (
               <tr key={item.email}>
                 <td>{item.email}</td>
@@ -152,7 +185,19 @@ const SNSControl = () => {
                     <span className="text-danger">{item.status}</span>
                   )}
                 </td>
-                <td>Nope</td>
+                <td>
+                  {item.status === "Subscribed" ? (
+                    <Button
+                      variant="link"
+                      className="p-0"
+                      onClick={() => deleteSubscriber(item.email)}
+                    >
+                      Unsubscribe
+                    </Button>
+                  ) : (
+                    <>Nope</>
+                  )}
+                </td>
               </tr>
             );
           })}
