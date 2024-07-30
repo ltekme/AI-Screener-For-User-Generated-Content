@@ -4,10 +4,11 @@ import subprocess
 
 
 class TestAPIOutput(unittest.TestCase):
-    API_URL = subprocess.run(
+    TF_OUTPUT = subprocess.run(
         "terraform output api_gateway-invoke_url".split(" "),
         stdout=subprocess.PIPE
     ).stdout.decode("utf-8").strip()[1:-1]
+    API_URL = f"{TF_OUTPUT}/api"
 
     def test_accepted_response(self):
         response = requests.post(

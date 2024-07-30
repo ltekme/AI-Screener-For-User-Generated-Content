@@ -59,5 +59,5 @@ def generate_bad_request(count=1):
 
 
 if __name__ == '__main__':
-    generate_good_request(300)
-    generate_bad_request(300)
+    generate_good_request(40)
+    generate_bad_request(40)

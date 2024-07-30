@@ -3,15 +3,15 @@ import requests
 import subprocess
 import json
 
-# AI_Content_Screener_API_Stage/dynamo_query?flagged=true&last_timestamp=2024-07-29T13:31:28&item_per_page=100
+# <cf-dist>/api/dynamo_query?flagged=true&last_timestamp=2024-07-29T13:31:28&item_per_page=100
 
 
 class TestAPIOutput(unittest.TestCase):
     TF_OUTPUT = subprocess.run(
-        "terraform output api_gateway-invoke_url".split(" "),
+        "terraform output web-interafce-cloudfront-domain-name".split(" "),
         stdout=subprocess.PIPE
     ).stdout.decode("utf-8").strip()[1:-1]
-    API_URL = f"{TF_OUTPUT}/api"
+    API_URL = f"https://{TF_OUTPUT}/api"
 
     def test_no_param(self):
         response = requests.get(self.API_URL + "/dynamo_query")
