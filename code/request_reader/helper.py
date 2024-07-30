@@ -2,6 +2,19 @@ import boto3
 import boto3.dynamodb
 
 
+class Logger:
+    def __init__(self, request: dict, sender_ip: str):
+        self.request = request
+        self.sender_ip = sender_ip
+
+    def out(self, status: str) -> dict:
+        return {
+            "query_string": self.request,
+            "sender_ip": self.sender_ip,
+            "status": status
+        }
+
+
 class RequestTable:
     def __init__(self, table_name: str):
         self.client = boto3.client('dynamodb', region_name='us-east-1')
