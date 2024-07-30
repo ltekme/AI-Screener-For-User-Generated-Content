@@ -59,5 +59,6 @@ class snsTopic:
         raise SubscriptionNotFound
 
     @property
-    def subscribers(self) -> list:
-        return [subscriber["Endpoint"] for subscriber in self.email_subscribers]
+    def subscribers(self) -> list[dict]:
+
+        return [{"email": subscriber["Endpoint"], "status": "Subscribed" if subscriber["SubscriptionArn"].startswith("arn") else "Pending Confirmation" } for subscriber in self.email_subscribers]

@@ -47,7 +47,7 @@ def lambda_handler(event, context):
             return response
 
         # Invalid Request: body without email
-        if request_body.get("email") is None:
+        if request_body.get("email") is None or request_body.get("email") == "":
             response["statusCode"] = 400
             response["body"] = json.dumps(
                 {"Error": "Email is required"})

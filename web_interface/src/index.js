@@ -10,6 +10,7 @@ import { APIDisplay, API } from "./componemt/GetAPI";
 import Home from "./pages";
 import NotFlaggedInterface from "./pages/not_flagged";
 import FlaggedInterface from "./pages/flagged";
+import SNSControl from "./pages/sns_control";
 
 const NotFound = () => {
   return (
@@ -28,8 +29,9 @@ root.render(
       <div className="container">
         <Routes>
           <Route exact path="/" element={<Home />} />
-          <Route exact path="/not_flagged" element={<NotFlaggedInterface />} />
           <Route exact path="/flagged" element={<FlaggedInterface />} />
+          <Route exact path="/not_flagged" element={<NotFlaggedInterface />} />
+          <Route exact path="/sns_controller" element={<SNSControl />} />
           <Route exact path="*" element={<NotFound />} />
         </Routes>
       </div>

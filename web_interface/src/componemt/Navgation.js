@@ -19,6 +19,9 @@ let Navgation = () => {
             <Nav.Link href="/flagged">
               <span className="text-danger">Flagged Content</span>
             </Nav.Link>
+            <Nav.Link href="/sns_controller">
+              <span>Manage Admin</span>
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
