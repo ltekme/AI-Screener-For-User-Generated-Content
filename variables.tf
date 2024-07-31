@@ -1,3 +1,7 @@
+/*########################################################
+Terrafrom AWS Project Settings
+
+########################################################*/
 variable "project-name" {
   description = "The name of the project(can only contain letters, numbers, and hyphens)"
   type        = string

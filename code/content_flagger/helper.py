@@ -20,7 +20,7 @@ class SSM:
     def __init__(self, parameter_prefix: str):
         self.parameter_prefix = parameter_prefix if parameter_prefix is not None else ""
 
-    def get(self, param: str) -> str:
+    def get(self, param: str) -> str | None:
         client = boto3.client('ssm')
         try:
             response = client.get_parameter(
@@ -29,6 +29,14 @@ class SSM:
             return response['Parameter']['Value']
         except client.exceptions.ParameterNotFound:
             return None
+
+    @property
+    def always_flag(self) -> bool:
+        return True if self.get("always-flag") == "true" else False
+
+    @property
+    def bypass_flagger(self) -> bool:
+        return True if self.get("bypass-flagger") == "true" else False
 
 
 def send_to_sqs(sqs_queue_url: str, body: dict) -> None:

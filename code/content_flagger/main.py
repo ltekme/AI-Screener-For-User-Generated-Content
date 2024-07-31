@@ -78,11 +78,11 @@ def lambda_handler(event, context):
 
     try:
         # Always Flag
-        if paramater_store.get("always-flag") == "true":
+        if paramater_store.always_flag:
             raise EvaluationError("Always Flag Enabled")
 
         # Bypass Flagger
-        if paramater_store.get("bypass-flagger") == "true":
+        if paramater_store.bypass_flagger:
             send_to_sqs(WRITER_SQS_QUEUE_URL, request_content)
             print(logger.out("Bypassed"))
             return response

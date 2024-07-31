@@ -14,14 +14,14 @@ const ContentSubmitForm = () => {
 
   const good_resault = (msg) => {
     setResault({
-      text: `[${msg}]`,
+      text: `${msg}`,
       colorClass: "text-success",
     });
   };
 
   const bad_resault = (msg) => {
     setResault({
-      text: `[${msg}]`,
+      text: `${msg}`,
       colorClass: "text-danger",
     });
   };
