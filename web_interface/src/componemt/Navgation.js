@@ -1,6 +1,7 @@
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
+import NavDropdown from "react-bootstrap/NavDropdown";
 
 let Navgation = () => {
   return (
@@ -19,9 +20,14 @@ let Navgation = () => {
             <Nav.Link href="/flagged">
               <span className="text-danger">Flagged Content</span>
             </Nav.Link>
-            <Nav.Link href="/sns_controller">
-              <span>Manage Admin</span>
-            </Nav.Link>
+            <NavDropdown title="Controls" id="basic-nav-dropdown">
+              <NavDropdown.Item href="/sns_controller">
+                Alert Emails
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/flagger_control">
+                Content Flagger Paramaters
+              </NavDropdown.Item>
+            </NavDropdown>
           </Nav>
         </Navbar.Collapse>
       </Container>

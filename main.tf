@@ -28,3 +28,14 @@ provider "aws" {
   region = var.aws-region
 }
 data "aws_caller_identity" "current" {}
+
+
+/*########################################################
+Extra Null Resource
+
+########################################################*/
+resource "null_resource" "always_trigger" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+}

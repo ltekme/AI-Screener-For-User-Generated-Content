@@ -45,11 +45,12 @@ Flagged Content Output:
 
 import os
 import json
-from helper import (check_for_flag,
-                    EvaluationError,
-                    Logger,
+from helper import (Logger,
+                    SSM,
                     send_to_sns,
-                    send_to_sqs)
+                    send_to_sqs,
+                    EvaluationError,
+                    check_for_flag,)
 
 
 def lambda_handler(event, context):
@@ -57,7 +58,8 @@ def lambda_handler(event, context):
 
     WRITER_SQS_QUEUE_URL: str = os.environ.get('WRITER_SQS_QUEUE_URL')
     REJECTED_SNS_TOPIC_ARN: str = os.environ.get('REJECTED_SNS_TOPIC_ARN')
-    MODEL_ID: str = os.environ.get('MODEL_ID')
+    MODEL_ID: str = os.environ.get('MODEL_ID') or "abc/no-model-id-set"
+    SSM_PARAMETER_PREFIX: str = os.environ.get("SSM_PARAMETER_PREFIX")
 
     response: dict = {
         "statusCode": 200,
@@ -67,19 +69,42 @@ def lambda_handler(event, context):
     # Get Request Content
     request_content: dict = json.loads(event['Records'][0]['body'])
 
+    try:
+        paramater_store = SSM(SSM_PARAMETER_PREFIX)
+    except Exception as reason:
+        raise EvaluationError(reason)
+
     logger: Logger = Logger(request_content)
 
     try:
-        check_for_flag(
-            MODEL_ID, request_content['title'], request_content['body'])
+        # Always Flag
+        if paramater_store.always_flag:
+            raise EvaluationError("Always Flag Enabled")
 
+        # Bypass Flagger
+        if paramater_store.bypass_flagger:
+            send_to_sqs(WRITER_SQS_QUEUE_URL, request_content)
+            print(logger.out("Bypassed"))
+            return response
+
+        # Invoke Bedrock
+        try:
+            check_for_flag(
+                MODEL_ID.split('/')[1],
+                request_content['title'],
+                request_content['body'])
+        except Exception as reason:
+            raise EvaluationError(reason)
+
+        # Not Flagged
+        send_to_sqs(WRITER_SQS_QUEUE_URL, request_content)
+        print(logger.out("Not Flagged"))
+        return response
+
+    # Flagged
     except EvaluationError as reason:
-        request_content['flagged_reason'] = str(reason)
+        request_content["flagged_reason"] = str(reason)
         send_to_sns(REJECTED_SNS_TOPIC_ARN, request_content)
         send_to_sqs(WRITER_SQS_QUEUE_URL, request_content)
         logger.out("Flagged For: " + str(reason))
         return response
-
-    send_to_sqs(WRITER_SQS_QUEUE_URL, request_content)
-    logger.out("Not Flagged")
-    return response

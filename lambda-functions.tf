@@ -9,14 +9,14 @@ data "archive_file" "lambda_function-user_request" {
   output_path = "${path.module}/code/user_request.zip"
 }
 
-module "user_request_lambda" {
+module "lambda_function-user_request" {
   // Lambda Function Defination
   source = "./modules/lambda"
 
   aws-region  = var.aws-region
   prefix      = var.project-name
-  name        = "user-request-function"
-  description = "Lambda Function used to validate user input"
+  name        = "user-request"
+  description = "validate user input"
 
   source_code_zip_path = data.archive_file.lambda_function-user_request.output_path
 
@@ -60,14 +60,14 @@ data "archive_file" "lambda_function-content_flagger" {
   output_path = "${path.module}/code/content_flagger.zip"
 }
 
-module "content_flagger_lambda" {
+module "lambda_function-content_flagger" {
   // Lambda Function Defination
   source = "./modules/lambda"
 
   aws-region  = var.aws-region
   prefix      = var.project-name
-  name        = "content-flagging-function"
-  description = "Lambda Function used to flag content"
+  name        = "content-flagging"
+  description = "flag content"
 
   source_code_zip_path = data.archive_file.lambda_function-content_flagger.output_path
 
@@ -121,7 +121,7 @@ module "content_flagger_lambda" {
             Effect = "Allow",
             Action = ["bedrock:InvokeModel"],
             Resource = [
-              "arn:aws:bedrock:us-east-1::foundation-model/${var.bedrock-model-id}"
+              "arn:aws:bedrock:${var.aws-region}::${var.bedrock-model-id}"
             ]
           }
         ]
@@ -141,12 +141,29 @@ module "content_flagger_lambda" {
           }
         ]
       }
+    },
+    {
+      name = "ssm"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow",
+            Action = ["ssm:GetParameter"],
+            Resource = [
+              "${aws_ssm_parameter.content_flagger-bypass-flagger.arn}",
+              "${aws_ssm_parameter.content_flagger-always-flag.arn}"
+            ]
+          }
+        ]
+      }
     }
   ]
   additional-environment-variables = {
     "WRITER_SQS_QUEUE_URL"   = "${aws_sqs_queue.request-writer.url}",
     "REJECTED_SNS_TOPIC_ARN" = "${aws_sns_topic.rejected_requests.arn}",
-    "MODEL_ID"               = "${var.bedrock-model-id}"
+    "MODEL_ID"               = "${var.bedrock-model-id}",
+    "SSM_PARAMETER_PREFIX"   = "${local.ssm.prefix}"
   }
 }
 
@@ -162,14 +179,14 @@ data "archive_file" "lambda_function-request_writer" {
   output_path = "${path.module}/code/request_writer.zip"
 }
 
-module "request_writer_lambda" {
+module "lambda_function-request_writer" {
   // Lambda Function Defination
   source = "./modules/lambda"
 
   aws-region  = var.aws-region
   prefix      = var.project-name
-  name        = "request_writer-function"
-  description = "Lambda Function used to write user request to dynamodb tables"
+  name        = "request_writer"
+  description = "write user request to dynamodb tables"
 
   source_code_zip_path = data.archive_file.lambda_function-request_writer.output_path
 
@@ -232,14 +249,14 @@ data "archive_file" "lambda_function-request_reader" {
   output_path = "${path.module}/code/request_reader.zip"
 }
 
-module "request_reader_lambda" {
+module "lambda_function-request_reader" {
   // Lambda Function Defination
   source = "./modules/lambda"
 
   aws-region  = var.aws-region
   prefix      = var.project-name
-  name        = "request_reader-function"
-  description = "Lambda Function used to read user request to dynamodb tables"
+  name        = "request_reader"
+  description = "read user request to dynamodb tables"
 
   source_code_zip_path = data.archive_file.lambda_function-request_reader.output_path
 
@@ -283,14 +300,14 @@ data "archive_file" "lambda_function-sns_control" {
   output_path = "${path.module}/code/sns_control.zip"
 }
 
-module "sns_control_lambda" {
+module "lambda_function-sns_control" {
   // Lambda Function Defination
   source = "./modules/lambda"
 
   aws-region  = var.aws-region
   prefix      = var.project-name
-  name        = "sns_control-function"
-  description = "Lambda Function used to control sns topic"
+  name        = "sns_control"
+  description = "control sns topic"
 
   source_code_zip_path = data.archive_file.lambda_function-sns_control.output_path
 
@@ -334,5 +351,59 @@ module "sns_control_lambda" {
 
   additional-environment-variables = {
     "NOTIFY_SNS_TOPIC" = "${aws_sns_topic.rejected_requests.arn}"
+  }
+}
+
+
+/*########################################################
+Content Flagger Controller API
+
+########################################################*/
+data "archive_file" "lambda_function-flagger_control" {
+  // Zip file of the lambda function
+  type        = "zip"
+  source_dir  = "${path.module}/code/flagger_control"
+  output_path = "${path.module}/code/flagger_control.zip"
+}
+
+module "lambda_function-flagger_control" {
+  // Lambda Function Defination
+  source = "./modules/lambda"
+
+  aws-region  = var.aws-region
+  prefix      = var.project-name
+  name        = "flagger_control"
+  description = "control content flagger"
+
+  source_code_zip_path = data.archive_file.lambda_function-flagger_control.output_path
+
+  lambda-config = {
+    handler        = "main.lambda_handler"
+    runtime        = "python3.12"
+    architecture   = "arm64"
+    execution_role = var.lambda_function-flagger_control-execution_role
+  }
+
+  additional-permissions = [
+    {
+      name = "ssm"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow",
+            Action = ["ssm:GetParameter", "ssm:PutParameter"],
+            Resource = [
+              "${aws_ssm_parameter.content_flagger-bypass-flagger.arn}",
+              "${aws_ssm_parameter.content_flagger-always-flag.arn}"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+
+  additional-environment-variables = {
+    "SSM_PARAMETER_PREFIX" = "${local.ssm.prefix}"
   }
 }

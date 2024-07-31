@@ -11,6 +11,7 @@ import Home from "./pages";
 import NotFlaggedInterface from "./pages/not_flagged";
 import FlaggedInterface from "./pages/flagged";
 import SNSControl from "./pages/sns_control";
+import FlaggerControl from "./pages/flagger_control";
 
 const NotFound = () => {
   return (
@@ -32,6 +33,7 @@ root.render(
           <Route exact path="/flagged" element={<FlaggedInterface />} />
           <Route exact path="/not_flagged" element={<NotFlaggedInterface />} />
           <Route exact path="/sns_controller" element={<SNSControl />} />
+          <Route exact path="/flagger_control" element={<FlaggerControl />} />
           <Route exact path="*" element={<NotFound />} />
         </Routes>
       </div>

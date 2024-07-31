@@ -11,7 +11,7 @@ resource "aws_sqs_queue" "user_request" {
 
 resource "aws_lambda_event_source_mapping" "user_request-lambda" {
   event_source_arn = aws_sqs_queue.user_request.arn
-  function_name    = module.content_flagger_lambda.lambda_function.arn
+  function_name    = module.lambda_function-content_flagger.lambda_function.arn
   batch_size       = 1
 
   scaling_config {
@@ -33,7 +33,7 @@ resource "aws_sqs_queue" "request-writer" {
 
 resource "aws_lambda_event_source_mapping" "request-writer-lambda" {
   event_source_arn = aws_sqs_queue.request-writer.arn
-  function_name    = module.request_writer_lambda.lambda_function.arn
+  function_name    = module.lambda_function-request_writer.lambda_function.arn
   batch_size       = 1
 
   scaling_config {

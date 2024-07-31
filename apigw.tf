@@ -124,13 +124,13 @@ resource "aws_apigatewayv2_integration" "submit_post" {
   passthrough_behavior = "WHEN_NO_MATCH"
   integration_type     = "AWS_PROXY"
   integration_method   = "POST"
-  integration_uri      = module.user_request_lambda.lambda_function.invoke_arn
+  integration_uri      = module.lambda_function-user_request.lambda_function.invoke_arn
 }
 
 resource "aws_lambda_permission" "submit_post" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = module.user_request_lambda.lambda_function.arn
+  function_name = module.lambda_function-user_request.lambda_function.arn
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
 }
@@ -153,13 +153,13 @@ resource "aws_apigatewayv2_integration" "dynamo_query" {
   passthrough_behavior = "WHEN_NO_MATCH"
   integration_type     = "AWS_PROXY"
   integration_method   = "POST"
-  integration_uri      = module.request_reader_lambda.lambda_function.invoke_arn
+  integration_uri      = module.lambda_function-request_reader.lambda_function.invoke_arn
 }
 
 resource "aws_lambda_permission" "dynamo_query" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = module.request_reader_lambda.lambda_function.arn
+  function_name = module.lambda_function-request_reader.lambda_function.arn
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
 }
@@ -174,7 +174,7 @@ Path: /api/sns_control - Permissions
 resource "aws_lambda_permission" "sns_control" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = module.sns_control_lambda.lambda_function.arn
+  function_name = module.lambda_function-sns_control.lambda_function.arn
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
 }
@@ -197,7 +197,7 @@ resource "aws_apigatewayv2_integration" "sns_control-GET" {
   passthrough_behavior = "WHEN_NO_MATCH"
   integration_type     = "AWS_PROXY"
   integration_method   = "POST"
-  integration_uri      = module.sns_control_lambda.lambda_function.invoke_arn
+  integration_uri      = module.lambda_function-sns_control.lambda_function.invoke_arn
 }
 
 
@@ -218,7 +218,7 @@ resource "aws_apigatewayv2_integration" "sns_control-POST" {
   passthrough_behavior = "WHEN_NO_MATCH"
   integration_type     = "AWS_PROXY"
   integration_method   = "POST"
-  integration_uri      = module.sns_control_lambda.lambda_function.invoke_arn
+  integration_uri      = module.lambda_function-sns_control.lambda_function.invoke_arn
 }
 
 
@@ -239,5 +239,62 @@ resource "aws_apigatewayv2_integration" "sns_control-DELETE" {
   passthrough_behavior = "WHEN_NO_MATCH"
   integration_type     = "AWS_PROXY"
   integration_method   = "POST"
-  integration_uri      = module.sns_control_lambda.lambda_function.invoke_arn
+  integration_uri      = module.lambda_function-sns_control.lambda_function.invoke_arn
+}
+
+
+/*########################################################
+API Gateway Resource
+
+Path: /api/flagger_control - Permissions
+
+########################################################*/
+resource "aws_lambda_permission" "flagger_control" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_function-flagger_control.lambda_function.arn
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.main.execution_arn}/*/*/*"
+}
+
+
+/*########################################################
+API Gateway Resource
+
+Path: /api/flagger_control - GET
+
+########################################################*/
+resource "aws_apigatewayv2_route" "flagger_control-GET" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "GET /api/flagger_control"
+  target    = "integrations/${aws_apigatewayv2_integration.flagger_control-GET.id}"
+}
+
+resource "aws_apigatewayv2_integration" "flagger_control-GET" {
+  api_id               = aws_apigatewayv2_api.main.id
+  passthrough_behavior = "WHEN_NO_MATCH"
+  integration_type     = "AWS_PROXY"
+  integration_method   = "POST"
+  integration_uri      = module.lambda_function-flagger_control.lambda_function.invoke_arn
+}
+
+
+/*########################################################
+API Gateway Resource
+
+Path: /api/flagger_control - POST
+
+########################################################*/
+resource "aws_apigatewayv2_route" "flagger_control-POST" {
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "POST /api/flagger_control"
+  target    = "integrations/${aws_apigatewayv2_integration.flagger_control-GET.id}"
+}
+
+resource "aws_apigatewayv2_integration" "flagger_control-POST" {
+  api_id               = aws_apigatewayv2_api.main.id
+  passthrough_behavior = "WHEN_NO_MATCH"
+  integration_type     = "AWS_PROXY"
+  integration_method   = "POST"
+  integration_uri      = module.lambda_function-flagger_control.lambda_function.invoke_arn
 }
