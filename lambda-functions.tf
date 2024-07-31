@@ -121,7 +121,7 @@ module "content_flagger_lambda" {
             Effect = "Allow",
             Action = ["bedrock:InvokeModel"],
             Resource = [
-              "arn:aws:bedrock:us-east-1::foundation-model/${var.bedrock-model-id}"
+              "arn:aws:bedrock:${var.aws-region}::${var.bedrock-model-id}"
             ]
           }
         ]
@@ -141,12 +141,29 @@ module "content_flagger_lambda" {
           }
         ]
       }
+    },
+    {
+      name = "ssm"
+      policy = {
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow",
+            Action = ["ssm:GetParameter"],
+            Resource = [
+              "${aws_ssm_parameter.content_flagger-bypass-flagger.arn}",
+              "${aws_ssm_parameter.content_flagger-always-flag.arn}"
+            ]
+          }
+        ]
+      }
     }
   ]
   additional-environment-variables = {
     "WRITER_SQS_QUEUE_URL"   = "${aws_sqs_queue.request-writer.url}",
     "REJECTED_SNS_TOPIC_ARN" = "${aws_sns_topic.rejected_requests.arn}",
-    "MODEL_ID"               = "${var.bedrock-model-id}"
+    "MODEL_ID"               = "${var.bedrock-model-id}",
+    "SSM_PARAMETER_PREFIX"   = "${local.ssm.prefix}"
   }
 }
 
@@ -336,3 +353,4 @@ module "sns_control_lambda" {
     "NOTIFY_SNS_TOPIC" = "${aws_sns_topic.rejected_requests.arn}"
   }
 }
+

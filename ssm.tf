@@ -8,23 +8,16 @@ locals {
   }
 }
 
-resource "aws_ssm_parameter" "content_flagger-bedrock-model-id" {
-  // bedrock-model-id
-  name  = "${loacl.ssm.prefix}/bedrock-model-id"
-  type  = "String"
-  value = var.bedrock-model-id
-}
-
 resource "aws_ssm_parameter" "content_flagger-bypass-flagger" {
   // bedrock-model-id
-  name  = "${loacl.ssm.prefix}/bypass-flagger"
-  type  = "String"
-  value = var.bedrock-model-id
-}
-
-resource "aws_ssm_parameter" "content_flagger-bedrock-model-id" {
-  // bypass-flagger
-  name  = "${loacl.ssm.prefix}/bedrock-model-id"
+  name  = "/${local.ssm.prefix}/bypass-flagger"
   type  = "String"
   value = tostring(var.bypass-flagger)
+}
+
+resource "aws_ssm_parameter" "content_flagger-always-flag" {
+  // bedrock-model-id
+  name  = "/${local.ssm.prefix}/always-flag"
+  type  = "String"
+  value = tostring(var.always-flag)
 }

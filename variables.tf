@@ -12,7 +12,7 @@ variable "aws-region" {
 
 
 /*########################################################
-Optional Variable
+Lambda Function Execution Roles
 
 ########################################################*/
 variable "lambda_function-user_request-execution_role" {
@@ -45,6 +45,17 @@ variable "lambda_function-sns_control-execution_role" {
   default     = null
 }
 
+variable "lambda_function-flagger_control-execution_role" {
+  description = "The ARN of the IAM role that the flagger_control lambda function will assume"
+  type        = string
+  default     = null
+}
+
+
+/*########################################################
+APi Gateway Settings
+
+########################################################*/
 variable "api_gateway-account-role" {
   description = "The ARN of the IAM role that the API Gateway will assume"
   type        = string
@@ -63,18 +74,34 @@ variable "api_gateway-route-submit-integration-role-arn" {
   default     = null
 }
 
+
+/*########################################################
+Content Flagger Settings
+
+########################################################*/
 variable "bedrock-model-id" {
   description = "The ID of the Bedrock model to use for content flagging"
   type        = string
-  default     = "anthropic.claude-3-haiku-20240307-v1:0"
+  default     = "foundation-model/anthropic.claude-3-haiku-20240307-v1:0"
 }
 
 variable "bypass-flagger" {
-  description = "controll weather to bypass the content flagger"
+  description = "Weather to bypass content flagger"
   type        = bool
   default     = false
 }
 
+variable "always-flag" {
+  description = "Weather to always flag content"
+  type        = bool
+  default     = false
+}
+
+
+/*########################################################
+Interface Settings
+
+########################################################*/
 variable "admin-email" {
   description = "The email address of the admin to notify when a request is denied"
   type        = list(string)
