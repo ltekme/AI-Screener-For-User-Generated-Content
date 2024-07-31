@@ -69,6 +69,12 @@ variable "bedrock-model-id" {
   default     = "anthropic.claude-3-haiku-20240307-v1:0"
 }
 
+variable "bypass-flagger" {
+  description = "controll weather to bypass the content flagger"
+  type        = bool
+  default     = false
+}
+
 variable "admin-email" {
   description = "The email address of the admin to notify when a request is denied"
   type        = list(string)
