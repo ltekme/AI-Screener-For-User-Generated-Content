@@ -99,12 +99,8 @@ Body: {body}
     })
 
     response: dict = client.invoke_model(modelId=model_id, body=request)
-
     model_response: dict = json.loads(response["body"].read())
-
     resault: str = model_response["content"][0]["text"]
-
     if resault != 'No Flag':
         raise EvaluationError(resault)
-
     return

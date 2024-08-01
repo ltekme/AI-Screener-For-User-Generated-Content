@@ -1,30 +1,75 @@
 # AI-Screener-For-User-Generated-Content
 
-A concept for using bedrock to flag user generated content.
+A concept for using bedrock to flag user generated content. For technical details, I will put out a bog detailing everything in this project.
 
-## Usage
+## Table of contents
 
-In the tests, include bedrock_test.py inside is
+- [AI-Screener-For-User-Generated-Content](#ai-screener-for-user-generated-content)
+  - [Table of contents](#table-of-contents)
+  - [Before everything speach](#before-everything-speach)
+  - [Deploying](#deploying)
+    - [Deploying on your own account](#deploying-on-your-own-account)
+    - [Deploying on AWS Acaedmy Learner Lab Account](#deploying-on-aws-acaedmy-learner-lab-account)
+  - [Variable Defination](#variable-defination)
+  - [Using the Web Interface](#using-the-web-interface)
+
+## Before everything speach
+
+About The AI. Even though the title is AI-Screener-For-User-Generated-Content the main focus for me is not the AI part, please spear me some lack if the model prompt is terrable, at least it works.  Instead, my goal is to try to build a `serverless + decoupled` "system". This project have 5 lambda function, and 2 SQS queue, coupling everyting together. And everything can be done with a single lambda function, but what's the fun in that.
 
 ## Deploying
 
-As of right now this project cannot be deployed on aws adaedmy lab account due to the lack of amazon bedrock service.
+also see: [https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files](https://developer.hashicorp.com/terraform/language/values/variables#variable-definitions-tfvars-files)
 
 ### Deploying on your own account
 
-```sh
-terraform init
-terrafrom apply -var "admin-email=['example@email.com']"
-```
+1. Change Bedrock Model ID
 
-replace `example@email.com` with your own email.
+   When creating this thing. I only requested access to [`claude-3-haiku`](https://aws.amazon.com/bedrock/claude/), so that is the defaule model id. To change it. Set the `bedrock-model-id` to your model id in the variables.
 
-## References
+2. Applying resources
 
-- SQS Send Messages: [https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/send_message.html#](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs/client/send_message.html#)
+   ```sh
+   terraform init
+   terrafrom apply
+   ```
 
-- boto3 Invoke Bedrock: [https://docs.aws.amazon.com/code-library/latest/ug/python_3_bedrock-runtime_code_examples.html](https://docs.aws.amazon.com/code-library/latest/ug/python_3_bedrock-runtime_code_examples.html)
+### Deploying on AWS Acaedmy Learner Lab Account
 
-- [https://stackoverflow.com/questions/45803824/how-to-debug-issues-with-amazon-sqs-subscription-to-sns](https://stackoverflow.com/questions/45803824/how-to-debug-issues-with-amazon-sqs-subscription-to-sns)
+1. Setup enviroments
 
-- [https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/put_item.html](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb/client/put_item.html)
+   Due to the way AWS Acaedmy Learner Lab is designed. Various resources creation need to be skipped, namely IAM. And some functionality mught not work properly.
+
+   By dafault, terraform will create the necessary iam roles for lambda functions, however the lab enviroment deny the creation of IAM roles with a single role be used on all resources.
+
+   The way things are constructed here works around that by check if an execution role is provided, if provided, terraform will not create the IAM role needed, and use the one provided instead. For more information, see [Variable Defination](#variable-defination).
+
+   Due to Acaedmy Learner Lab limitations. `always-flag` or `bypass-flagger` must be set to true, as learner lab account lack bedrock invoke_model permission. If both set to false, all content submitted will be flagged due to insufficent permission from content flagger lambda function.
+
+   ```tfvar
+   # terrafrom.tfvar
+   lambda_function-user_request-execution_role = arn:aws:iam::123456789012:role/LabRole
+   lambda_function-content_flagger-execution_role = arn:aws:iam::123456789012:role/LabRole
+   lambda_function-request_writer-execution_role = arn:aws:iam::123456789012:role/LabRole
+   lambda_function-request_reader-execution_role = arn:aws:iam::123456789012:role/LabRole
+   lambda_function-sns_control-execution_role = arn:aws:iam::123456789012:role/LabRole
+   lambda_function-flagger_control-execution_role = arn:aws:iam::123456789012:role/LabRole
+   always-flag = true
+   ```
+
+   Optional roles are `api_gateway-account-role`. If `api_gateway-enable-logs` is set to false. The role used by api gateway will not be created and logging for the aip gateway will be diabled, see [Variable Defination](#variable-defination).
+
+2. Apply resources
+
+   ```sh
+   terraform init
+   terrafrom apply
+   ```
+
+## Variable Defination
+
+refer to [docs/variables.md](docs/variables.md)
+
+## Using the Web Interface
+
+refer to [docs/web-interface.md](docs/web-interface.md)

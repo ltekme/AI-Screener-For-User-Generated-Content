@@ -335,13 +335,11 @@ module "lambda_function-sns_control" {
             }
           },
           {
-            Effect   = "Allow",
-            Action   = ["sns:Unsubscribe"],
-            Resource = ["${aws_sns_topic.rejected_requests.arn}"]
-          },
-          {
-            Effect   = "Allow",
-            Action   = ["sns:ListSubscriptionsByTopic"],
+            Effect = "Allow",
+            Action = [
+              "sns:Unsubscribe",
+              "sns:ListSubscriptionsByTopic"
+            ],
             Resource = ["${aws_sns_topic.rejected_requests.arn}"]
           }
         ]

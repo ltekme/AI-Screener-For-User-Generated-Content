@@ -69,13 +69,7 @@ variable "api_gateway-account-role" {
 variable "api_gateway-enable-logs" {
   description = "Enable CloudWatch Logs for the API Gateway"
   type        = bool
-  default     = true
-}
-
-variable "api_gateway-route-submit-integration-role-arn" {
-  description = "The ARN of the IAM role that the API Gateway will assume for the submit_post route"
-  type        = string
-  default     = null
+  default     = false
 }
 
 
@@ -103,17 +97,17 @@ variable "always-flag" {
 
 
 /*########################################################
-Interface Settings
+Web Interface Settings
 
 ########################################################*/
 variable "admin-email" {
-  description = "The email address of the admin to notify when a request is denied"
+  description = "The email address of the admin to notify when a request is rejected. Can be changed in the web interface"
   type        = list(string)
   default     = []
 }
 
 variable "use-cloudfront-api" {
-  description = "Controls weather to upload API.txt file to the S3 bucket"
+  description = "When set to true, API.txt will not be uploaded to the web interface bucket, using /api as the path for the API"
   type        = bool
   default     = true
 }

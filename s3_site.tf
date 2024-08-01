@@ -79,7 +79,7 @@ resource "null_resource" "web-interface-content-sync" {
 }
 
 resource "aws_s3_object" "web-interface-api-url-file" {
-  count = var.use-cloudfront-api == true ? 1 : 0
+  count = var.use-cloudfront-api == false ? 1 : 0
   // Create a file with the API URL for web interface
   bucket       = aws_s3_bucket.web-interafce.id
   key          = "API.txt"
@@ -88,7 +88,7 @@ resource "aws_s3_object" "web-interface-api-url-file" {
 
   // trigger replace  
   lifecycle {
-    replace_triggered_by = null_resource.always_trigger
+    replace_triggered_by = [null_resource.always_trigger]
   }
 
   // Put file after sync content
