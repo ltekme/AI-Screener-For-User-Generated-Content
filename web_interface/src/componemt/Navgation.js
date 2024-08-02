@@ -1,9 +1,31 @@
+import { useState, useEffect } from "react";
+
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 
 let Navgation = () => {
+  const localThemeKey = "theme";
+
+  const [theme, setTheme] = useState(
+    localStorage.getItem(localThemeKey) === "light" ? "light" : "dark"
+  );
+
+  useEffect(() => {
+    let data = localStorage.getItem(localThemeKey);
+    data === "light" ? setTheme("light") : setTheme("dark");
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(localThemeKey, theme);
+    document.body.setAttribute("data-bs-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    theme === "light" ? setTheme("dark") : setTheme("light");
+  };
+
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container>
@@ -26,6 +48,9 @@ let Navgation = () => {
               </NavDropdown.Item>
               <NavDropdown.Item href="/flagger_control">
                 Content Flagger Paramaters
+              </NavDropdown.Item>
+              <NavDropdown.Item onClick={toggleTheme}>
+                {theme === "light" ? "Dark Mode" : "Light Mode"}
               </NavDropdown.Item>
             </NavDropdown>
           </Nav>
