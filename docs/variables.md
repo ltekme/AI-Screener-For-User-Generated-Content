@@ -129,15 +129,16 @@ The roles is assumed by `Service: lambda.amazonaws.com`.
 
 ## Web Interface Settings Variables
 
-| Variable Name      | type         | required | default |
-| ------------------ | ------------ | -------- | ------- |
-| admin-email        | list(string) | yes      | []      |
-| use-cloudfront-api | bool         | yes      | true    |
+| Variable Name  | type         | required | default |
+|----------------|--------------|----------|---------|
+| admin-email    | list(string) | yes      | []      |
+| use-cloudfront | bool         | yes      | true    |
 
 - admin-email
 
   List of emails to subscribe to sns topic which send alert when content is flagged. Can leave empty as subscribers can be deleted and added in the web interafce.
 
-- use-cloudfront-api
+- use-cloudfront
   
-  The web interface will look for a file called API.txt in the root directory of the bucket. If the file was not found. It will use /api as it's API.
+  Control the use of cloud front. Because AWS Acaedmy does not allow the use of Cloudfront. Setting this value to false will updload API.txt to the s3 bucket. And S3 bucket website will be used instead of cloudfront.
+  

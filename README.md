@@ -44,17 +44,17 @@ also see: [https://developer.hashicorp.com/terraform/language/values/variables#v
 
    The way things are constructed here works around that by check if an execution role is provided, if provided, terraform will not create the IAM role needed, and use the one provided instead. For more information, see [Variable Defination](#variable-defination).
 
-   Due to Acaedmy Learner Lab limitations. `always-flag` or `bypass-flagger` must be set to true, as learner lab account lack bedrock invoke_model permission. If both set to false, all content submitted will be flagged due to insufficent permission from content flagger lambda function.
+   Due to Acaedmy Learner Lab limitations. `always-flag` or `bypass-flagger` must be set to true, as learner lab account lack bedrock invoke_model permission. If both set to false, all content submitted will be flagged due to insufficent permission from content flagger lambda function. In combination. `use-cloudfront` must be set to false because, aws acaedmy does not allow cloudfront.
 
    ```tfvar
    # terrafrom.tfvarsF
-   lambda_function-user_request-execution_role    = "arn:aws:iam::123456789012:role/LabRole"
-   lambda_function-content_flagger-execution_role = "arn:aws:iam::123456789012:role/LabRole"
-   lambda_function-request_writer-execution_role  = "arn:aws:iam::123456789012:role/LabRole"
-   lambda_function-request_reader-execution_role  = "arn:aws:iam::123456789012:role/LabRole"
-   lambda_function-sns_control-execution_role     = "arn:aws:iam::123456789012:role/LabRole"
-   lambda_function-flagger_control-execution_role = "arn:aws:iam::123456789012:role/LabRole"
-   always-flag = true
+   lambda_function-user_request-execution_role    = "arn:aws:iam::855447413317:role/LabRole"
+   lambda_function-content_flagger-execution_role = "arn:aws:iam::855447413317:role/LabRole"
+   lambda_function-request_writer-execution_role  = "arn:aws:iam::855447413317:role/LabRole"
+   lambda_function-request_reader-execution_role  = "arn:aws:iam::855447413317:role/LabRole"
+   lambda_function-sns_control-execution_role     = "arn:aws:iam::855447413317:role/LabRole"
+   lambda_function-flagger_control-execution_role = "arn:aws:iam::855447413317:role/LabRole"
+   use-cloudfront                                 = false
    ```
 
    Optional roles are `api_gateway-account-role`. If `api_gateway-enable-logs` is set to false. The role used by api gateway will not be created and logging for the aip gateway will be diabled, see [Variable Defination](#variable-defination).
@@ -72,4 +72,4 @@ refer to [docs/variables.md](docs/variables.md)
 
 ## Using the Web Interface
 
-refer to [docs/web-interface.md](docs/web-interface.md)
+refer to [docs/web-interface.md](docs/web-interface/README.md)
