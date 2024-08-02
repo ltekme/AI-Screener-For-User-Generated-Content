@@ -136,7 +136,7 @@ resource "aws_s3_object" "web-interface-api-url-file" {
 
   // trigger replace
   lifecycle {
-    replace_triggered_by = [null_resource.web-interface-content-sync]
+    replace_triggered_by = [aws_apigatewayv2_stage.main]
   }
 
   // Put file after sync content
@@ -147,8 +147,8 @@ resource "null_resource" "CF-invalidation" {
   // invalidation to replace API.txt
   count = var.use-cloudfront == true ? 1 : 0
 
-  lifecycle {
-    replace_triggered_by = [aws_s3_object.web-interface-api-url-file]
+  triggers = {
+    src_hash = sha256("${aws_apigatewayv2_stage.main.invoke_url}")
   }
 
   provisioner "local-exec" {
