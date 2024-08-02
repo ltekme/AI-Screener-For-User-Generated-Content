@@ -6,6 +6,6 @@ output "web-interafce-bucket-name" {
   value = aws_s3_bucket.web-interafce.bucket
 }
 
-output "web-interafce-cloudfront-domain-name" {
-  value = aws_cloudfront_distribution.main.domain_name  
+output "web-interafce-url" {
+  value = var.use-cloudfront == true ? "https://${aws_cloudfront_distribution.main[0].domain_name}/" : "http://${aws_s3_bucket_website_configuration.web-interafce[0].website_endpoint}"
 }

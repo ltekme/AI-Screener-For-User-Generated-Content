@@ -47,13 +47,13 @@ also see: [https://developer.hashicorp.com/terraform/language/values/variables#v
    Due to Acaedmy Learner Lab limitations. `always-flag` or `bypass-flagger` must be set to true, as learner lab account lack bedrock invoke_model permission. If both set to false, all content submitted will be flagged due to insufficent permission from content flagger lambda function.
 
    ```tfvar
-   # terrafrom.tfvar
-   lambda_function-user_request-execution_role = arn:aws:iam::123456789012:role/LabRole
-   lambda_function-content_flagger-execution_role = arn:aws:iam::123456789012:role/LabRole
-   lambda_function-request_writer-execution_role = arn:aws:iam::123456789012:role/LabRole
-   lambda_function-request_reader-execution_role = arn:aws:iam::123456789012:role/LabRole
-   lambda_function-sns_control-execution_role = arn:aws:iam::123456789012:role/LabRole
-   lambda_function-flagger_control-execution_role = arn:aws:iam::123456789012:role/LabRole
+   # terrafrom.tfvarsF
+   lambda_function-user_request-execution_role    = "arn:aws:iam::123456789012:role/LabRole"
+   lambda_function-content_flagger-execution_role = "arn:aws:iam::123456789012:role/LabRole"
+   lambda_function-request_writer-execution_role  = "arn:aws:iam::123456789012:role/LabRole"
+   lambda_function-request_reader-execution_role  = "arn:aws:iam::123456789012:role/LabRole"
+   lambda_function-sns_control-execution_role     = "arn:aws:iam::123456789012:role/LabRole"
+   lambda_function-flagger_control-execution_role = "arn:aws:iam::123456789012:role/LabRole"
    always-flag = true
    ```
 

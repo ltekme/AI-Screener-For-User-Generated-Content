@@ -106,8 +106,8 @@ variable "admin-email" {
   default     = []
 }
 
-variable "use-cloudfront-api" {
-  description = "When set to true, API.txt will not be uploaded to the web interface bucket, using /api as the path for the API"
+variable "use-cloudfront" {
+  description = "Weather to use cloudfront or not"
   type        = bool
   default     = true
 }

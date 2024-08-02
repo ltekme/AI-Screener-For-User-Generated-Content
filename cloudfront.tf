@@ -1,7 +1,5 @@
 /*########################################################
-CloudFront distribution for web interface
-
-# main fix for s3 bucket website 403 and 404 error
+CloudFront Distribution locals
 
 ########################################################*/
 locals {
@@ -17,9 +15,19 @@ locals {
   }
 }
 
-resource "aws_cloudfront_origin_access_identity" "main-web-interface-bucket" {}
+
+/*########################################################
+CloudFront distribution for web interface
+
+mainly bypass s3 bucket website 403 and 404 error for react js
+
+########################################################*/
+resource "aws_cloudfront_origin_access_identity" "main-web-interface-bucket" {
+  count = var.use-cloudfront == true ? 1 : 0
+}
 
 resource "aws_cloudfront_distribution" "main" {
+  count = var.use-cloudfront == true ? 1 : 0
 
   enabled             = true
   default_root_object = "index.html"
@@ -39,7 +47,7 @@ resource "aws_cloudfront_distribution" "main" {
     domain_name = aws_s3_bucket.web-interafce.bucket_regional_domain_name
     origin_id   = local.cloudfront.origin.s3_bucket.origin_id
     s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.main-web-interface-bucket.cloudfront_access_identity_path
+      origin_access_identity = aws_cloudfront_origin_access_identity.main-web-interface-bucket[0].cloudfront_access_identity_path
     }
   }
 
