@@ -149,9 +149,10 @@ resource "null_resource" "CF-invalidation" {
 
   triggers = {
     src_hash = sha256("${aws_apigatewayv2_stage.main.invoke_url}")
+    src_hash = "${data.archive_file.web_interface.output_sha}"
   }
 
   provisioner "local-exec" {
-    command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.main[0].id} --paths '/API.txt' --region ${var.aws-region}"
+    command = "aws cloudfront create-invalidation --distribution-id ${aws_cloudfront_distribution.main[0].id} --paths '/*' --region ${var.aws-region}"
   }
 }
