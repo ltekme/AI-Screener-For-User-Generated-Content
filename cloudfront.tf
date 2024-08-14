@@ -22,8 +22,12 @@ CloudFront distribution for web interface
 mainly bypass s3 bucket website 403 and 404 error for react js
 
 ########################################################*/
-resource "aws_cloudfront_origin_access_identity" "main-web-interface-bucket" {
-  count = var.use-cloudfront == true ? 1 : 0
+resource "aws_cloudfront_origin_access_control" "main-web-interface-bucket" {
+  count                             = var.use-cloudfront == true ? 1 : 0
+  name                              = "${replace(var.project-name, " ", "-")}-web-interface-bucket"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
 }
 
 resource "aws_cloudfront_distribution" "main" {
@@ -44,11 +48,9 @@ resource "aws_cloudfront_distribution" "main" {
 
   // reactjs web intreface bucket
   origin {
-    domain_name = aws_s3_bucket.web-interafce.bucket_regional_domain_name
-    origin_id   = local.cloudfront.origin.s3_bucket.origin_id
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.main-web-interface-bucket[0].cloudfront_access_identity_path
-    }
+    domain_name              = aws_s3_bucket.web-interafce.bucket_regional_domain_name
+    origin_id                = local.cloudfront.origin.s3_bucket.origin_id
+    origin_access_control_id = aws_cloudfront_origin_access_control.main-web-interface-bucket[0].id
   }
 
   // api gateway

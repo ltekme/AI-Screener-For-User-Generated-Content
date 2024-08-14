@@ -7,6 +7,7 @@ A concept for using bedrock to flag user generated content. For technical detail
 - [AI-Screener-For-User-Generated-Content](#ai-screener-for-user-generated-content)
   - [Table of contents](#table-of-contents)
   - [Before everything speach](#before-everything-speach)
+    - [Requirments](#requirments)
   - [Deploying](#deploying)
     - [Deploying on your own account](#deploying-on-your-own-account)
     - [Deploying on AWS Acaedmy Learner Lab Account](#deploying-on-aws-acaedmy-learner-lab-account)
@@ -16,6 +17,14 @@ A concept for using bedrock to flag user generated content. For technical detail
 ## Before everything speach
 
 About The AI. Even though the title is AI-Screener-For-User-Generated-Content the main focus for me is not the AI part, please spear me some lack if the model prompt is terrable, at least it works.  Instead, my goal is to try to build a `serverless + decoupled` "system". This project have 5 lambda function, and 2 SQS queue, coupling everyting together. And everything can be done with a single lambda function, but what's the fun in that.
+
+### Requirments
+
+| Package   | Version  |
+|-----------|----------|
+| AWS cli   | >= 2.17  |
+| NodeJS    | >= 20    |
+| Terraform | >= 1.9.3 |
 
 ## Deploying
 

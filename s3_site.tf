@@ -17,9 +17,9 @@ resource "random_string" "web-interafce-bucket-suffix" {
   numeric = true
 }
 
-resource "aws_s3_bucket_policy" "web-interafce-oai" {
+resource "aws_s3_bucket_policy" "web-interafce-oac" {
   count = var.use-cloudfront == true ? 1 : 0
-  // Bucket Policy for CloudFront OAI
+  // Bucket Policy for CloudFront OAC
   bucket = aws_s3_bucket.web-interafce.id
   policy = jsonencode(
     {
@@ -28,10 +28,15 @@ resource "aws_s3_bucket_policy" "web-interafce-oai" {
         {
           Effect = "Allow",
           Principal = {
-            AWS = ["${aws_cloudfront_origin_access_identity.main-web-interface-bucket[0].iam_arn}"]
+            Service = "cloudfront.amazonaws.com"
           }
           Action   = "s3:GetObject",
           Resource = "${aws_s3_bucket.web-interafce.arn}/*",
+          Condition = {
+            StringEquals = {
+              "AWS:SourceArn" = aws_cloudfront_distribution.main[0].arn
+            }
+          }
         },
       ],
     }
