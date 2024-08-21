@@ -69,7 +69,7 @@ variable "api_gateway-account-role" {
 variable "api_gateway-enable-logs" {
   description = "Enable CloudWatch Logs for the API Gateway"
   type        = bool
-  default     = false
+  default     = true
 }
 
 

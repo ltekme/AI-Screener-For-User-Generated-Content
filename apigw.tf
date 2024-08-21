@@ -28,7 +28,6 @@ resource "aws_apigatewayv2_stage" "main" {
         ip                      = "$context.identity.sourceIp",
         requestTime             = "$context.requestTime",
         httpMethod              = "$context.httpMethod",
-        httpPath                = "$context.httpPath",
         status                  = "$context.status",
         protocol                = "$context.protocol",
         integrationErrorMessage = "$context.integrationErrorMessage",
