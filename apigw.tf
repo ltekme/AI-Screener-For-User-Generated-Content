@@ -62,50 +62,6 @@ resource "aws_cloudwatch_log_group" "main-api_gateway" {
   retention_in_days = 7
 }
 
-resource "aws_api_gateway_account" "main-api_gateway" {
-  count               = var.api_gateway-enable-logs == true ? 1 : 0
-  cloudwatch_role_arn = var.api_gateway-account-role == null ? aws_iam_role.main-api_gateway[0].arn : var.api_gateway-account-role
-}
-
-resource "aws_iam_role" "main-api_gateway" {
-  count = var.api_gateway-enable-logs == true && var.api_gateway-account-role == null ? 1 : 0
-  name  = replace(replace("${var.project-name}-Main-API-Gateway-Role", " ", "_"), "-", "_")
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          Service = "apigateway.amazonaws.com"
-        },
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-
-  inline_policy {
-    name = "cloudwatch-logs"
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Effect = "Allow",
-          Action = [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:DescribeLogGroups",
-            "logs:DescribeLogStreams",
-            "logs:PutLogEvents",
-            "logs:GetLogEvents",
-            "logs:FilterLogEvents",
-          ],
-          Resource = ["*"]
-        }
-      ]
-    })
-  }
-}
-
 
 /*########################################################
 API Gateway Resource
